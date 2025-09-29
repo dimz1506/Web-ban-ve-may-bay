@@ -1,7 +1,7 @@
 <?php
 // public/index.php
 // Router + Trang chủ (landing). Khi có tham số ?p=... sẽ nạp trang trong /pages.
-require_once dirname(__DIR__).'/config.php';
+require_once dirname(__DIR__) . '/config.php';
 
 $p = $_GET['p'] ?? null;
 
@@ -16,20 +16,27 @@ if ($p !== null && $p !== 'home') {
     'users'        => 'admin/user.php',
     'staff'        => 'staff/staff_dashboard.php',
     'customer'     => 'customer/customer_dashboard.php',
+    'flights'     => 'admin/flights.php',
+    'promotions'   => 'admin/promotions.php',
   ];
-  if (!isset($map[$p])) { http_response_code(404); exit('Not found'); }
-  require_once dirname(__DIR__).'/pages/'.$map[$p];
+  if (!isset($map[$p])) {
+    http_response_code(404);
+    exit('Not found');
+  }
+  require_once dirname(__DIR__) . '/pages/' . $map[$p];
   exit;
 }
 ?>
 <!doctype html>
 <html lang="vi">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Trang chủ - Đặt vé máy bay</title>
   <link rel="stylesheet" href="assets/home.css">
 </head>
+
 <body>
   <header class="topbar">
     <div class="container nav">
@@ -130,9 +137,18 @@ if ($p !== null && $p !== 'home') {
     <div class="container">
       <h2>Quy trình 3 bước</h2>
       <div class="cards">
-        <div class="card"><h3>1) Chọn chuyến</h3><p class="muted">So sánh giờ bay và hạng ghế phù hợp.</p></div>
-        <div class="card"><h3>2) Thanh toán</h3><p class="muted">Ví điện tử, thẻ nội địa/quốc tế hoặc chuyển khoản.</p></div>
-        <div class="card"><h3>3) Nhận vé điện tử</h3><p class="muted">Vé gửi về email/SMS, có thể tra cứu bất kỳ lúc nào.</p></div>
+        <div class="card">
+          <h3>1) Chọn chuyến</h3>
+          <p class="muted">So sánh giờ bay và hạng ghế phù hợp.</p>
+        </div>
+        <div class="card">
+          <h3>2) Thanh toán</h3>
+          <p class="muted">Ví điện tử, thẻ nội địa/quốc tế hoặc chuyển khoản.</p>
+        </div>
+        <div class="card">
+          <h3>3) Nhận vé điện tử</h3>
+          <p class="muted">Vé gửi về email/SMS, có thể tra cứu bất kỳ lúc nào.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -146,4 +162,5 @@ if ($p !== null && $p !== 'home') {
 
   <script src="assets/home.js" defer></script>
 </body>
+
 </html>
