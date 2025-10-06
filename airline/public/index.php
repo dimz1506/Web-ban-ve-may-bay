@@ -18,6 +18,8 @@ if ($p !== null && $p !== 'home') {
     'customer'     => 'customer/customer_dashboard.php',
     'flights'     => 'admin/flights.php',
     'promotions'   => 'admin/promotions.php',
+    'classes' => 'admin/classes.php',
+    'reports' => 'admin/reports.php'
   ];
   if (!isset($map[$p])) {
     http_response_code(404);

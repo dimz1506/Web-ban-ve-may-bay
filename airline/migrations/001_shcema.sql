@@ -187,5 +187,11 @@
 -- ('SGN-DAD','SGN','DAD',610);
 
 --xoa cot ten trong bang khuyen_mai
-ALTER TABLE khuyen_mai
-DROP COLUMN ten;
+-- ALTER TABLE khuyen_mai
+-- DROP COLUMN ten;
+
+-- ALTER TABLE hang_ghe 
+-- ADD COLUMN mo_ta VARCHAR(255) NULL,
+-- ADD COLUMN tien_ich VARCHAR(255) NULL,
+-- ADD COLUMN mau_sac VARCHAR(20) NULL,
+-- ADD COLUMN thu_tu INT DEFAULT 0;
