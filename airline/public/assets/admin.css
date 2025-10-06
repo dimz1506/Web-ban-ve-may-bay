@@ -1,161 +1,175 @@
 .tbl {
-         width: 100%;
-         border-collapse: collapse;
-         margin-top: 12px
- }
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
 
- .tbl th,
- .tbl td {
-         border: 1px solid var(--border);
-         padding: 10px;
-         text-align: left;
-         vertical-align: top
- }
+.tbl th,
+.tbl td {
+  border: 1px solid var(--border);
+  padding: 10px;
+  text-align: left;
+  vertical-align: top;
+}
 
- .card {
-         background: #fff;
-         border: 1px solid var(--border);
-         border-radius: 10px;
-         padding: 14px;
-         margin: 12px 0
- }
+.card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  margin: 12px 0;
+}
 
- .grid {
-         display: grid;
-         grid-template-columns: repeat(12, 1fr);
-         gap: 12px
- }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 12px;
+}
 
- form.inline {
-         display: inline
- }
+form.inline {
+  display: inline;
+}
 
- .muted {
-         color: #666
- }
- input, select, button {
-         padding: 8px;
-         border: 1px solid var(--border);
-         border-radius: 5px;
-         font-size: 14px;
-     }
-     
-     button.btn {
-         background: var(--primary);
-         color: #fff;
-         border: none;
-         cursor: pointer;
-         transition: 0.2s;
-     }
-     
-     button.btn:hover {
-         opacity: 0.9;
-     }
-     
-     .btn.outline {
-         background: #fff;
-         border: 1px solid var(--primary);
-         color: var(--primary);
-     }
-     .ok {
-         background: #d4edda;
-         color: #155724;
-         padding: 10px;
-         border-radius: 5px;
-         margin-bottom: 10px;
-     }
-     
-     .err {
-         background: #f8d7da;
-         color: #721c24;
-         padding: 10px;
-         border-radius: 5px;
-         margin-bottom: 10px;
-     }
-     .grid {
-         display: grid;
-         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-         gap: 16px;
-      }
-      
-      .card h3 {
-         margin: 0 0 8px;
-         font-size: 18px;
-         font-weight: bold;
-      }
-      
-      .card ul {
-         padding-left: 18px;
-         margin: 4px 0;
-         font-size: 14px;
-         color: #444;
-      }
-      
-      .actions {
-         margin-top: 12px;
-         display: flex;
-         gap: 8px;
-      }
-      .badge-color {
-         display: inline-block;
-         min-width: 40px;
-         height: 20px;
-         border-radius: 4px;
-         text-align: center;
-         line-height: 20px;
-         color: #fff;
-         font-size: 12px;
-         padding: 0 6px;
-     }
-      
-     .summary {
-         display: grid;
-         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-         gap: 16px;
-         margin-bottom: 20px;
-     }
-     .summary-card {
-         background: #fff;
-         border: 1px solid #ddd;
-         border-radius: 12px;
-         padding: 16px;
-         text-align: center;
-         box-shadow: 0 2px 4px rgba(0,0,0,.05);
-     }
-     .summary-card h3 {
-         font-size: 16px;
-         color: #555;
-         margin-bottom: 8px;
-     }
-     .summary-card p {
-         font-size: 20px;
-         font-weight: bold;
-         margin: 0;
-         color: #007bff;
-     }
-     .filter-form {
-         display: flex;
-         flex-wrap: wrap;
-         gap: 16px;
-         align-items: flex-end;
-     }
-     .filter-form .field {
-         flex: 1;
-         min-width: 200px;
-     }
-     .filter-form label {
-         display: block;
-         margin-bottom: 6px;
-         font-weight: 600;
-         color: #333;
-     }
-     .filter-form input {
-         width: 100%;
-         padding: 6px 10px;
-         border: 1px solid #ccc;
-         border-radius: 6px;
-     }
-     .filter-form .actions {
-         display: flex;
-         align-items: flex-end;
-     }
+.muted {
+  color: #666;
+}
+input,
+select,
+button {
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+button.btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button.btn:hover {
+  opacity: 0.9;
+}
+
+.btn.outline {
+  background: #fff;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
+button.btn.loc {
+  background: #007bff;
+  color: #fff;
+}
+button.btn.luu {
+  background: #155724;
+  color: #fff;
+}
+button.btn.xoa {
+  background: #721c24;
+  color: #fff;
+}
+.ok {
+  background: #d4edda;
+  color: #155724;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.err {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.card h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.card ul {
+  padding-left: 18px;
+  margin: 4px 0;
+  font-size: 14px;
+  color: #444;
+}
+
+.actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+}
+.badge-color {
+  display: inline-block;
+  min-width: 40px;
+  height: 20px;
+  border-radius: 4px;
+  text-align: center;
+  line-height: 20px;
+  color: #fff;
+  font-size: 12px;
+  padding: 0 6px;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.summary-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+.summary-card h3 {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 8px;
+}
+.summary-card p {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 0;
+  color: #007bff;
+}
+.filter-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+}
+.filter-form .field {
+  flex: 1;
+  min-width: 200px;
+}
+.filter-form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #333;
+}
+.filter-form input {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+.filter-form .actions {
+  display: flex;
+  align-items: flex-end;
+}

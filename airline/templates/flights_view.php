@@ -10,7 +10,7 @@
 </head>
 
 <body>
-        
+
         <?php include __DIR__ . '/../includes/header.php'; ?>
 
         <main class="container">
@@ -54,7 +54,7 @@
                                         <input id="to" name="to" type="datetime-local" value="<?= htmlspecialchars($to) ?>">
                                 </div>
                                 <div class="submit-row" style="grid-column: span 1;display:flex;align-items:end;justify-content:flex-end">
-                                        <button class="btn" type="submit">Lọc</button>
+                                        <button class="btn loc" type="submit">Lọc</button>
                                 </div>
                         </div>
                 </form>
@@ -153,7 +153,7 @@
                                 </div>
 
                                 <div class="submit-row">
-                                        <button class="btn" type="submit" name="action" value="<?= $edit_row ? 'update' : 'create' ?>">Lưu</button>
+                                        <button class="btn luu" type="submit" name="action" value="<?= $edit_row ? 'update' : 'create' ?>">Lưu</button>
                                         <?php if ($edit_row): ?>
                                                 <a class="btn outline" href="index.php?p=flights">Hủy</a>
                                         <?php endif; ?>
