@@ -60,7 +60,7 @@ try {
       <div class="brand"><div class="logo" aria-hidden="true">✈</div><div>VNAir Ticket</div></div>
       <nav class="toplinks" aria-hidden="false">
         <strong>Admin</strong>
-        <a href="index.php?p=dashboard" class="active">Dashboard</a>
+       
         <a href="index.php?p=users">Người dùng</a>
         <a href="index.php?p=flights">Chuyến bay</a>
         <a href="index.php?p=promotions">Khuyến mãi</a>
