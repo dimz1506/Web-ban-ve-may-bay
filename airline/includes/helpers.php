@@ -29,3 +29,15 @@ function require_post_csrf(): void {
 
 function p(string $key, $default='') { return htmlspecialchars($_POST[$key] ?? $default, ENT_QUOTES, 'UTF-8'); }
 function g(string $key, $default='') { return htmlspecialchars($_GET[$key] ?? $default, ENT_QUOTES, 'UTF-8'); }
+
+function send_confirmation_email(string $to, string $subject, string $body): bool {
+  // Giả lập gửi email: hiển thị ra màn hình hoặc ghi log
+  // Nếu cấu hình SMTP, có thể dùng mail($to, $subject, $body)
+  if (function_exists('mail')) {
+    // Uncomment dòng sau nếu muốn gửi thật
+    // return mail($to, $subject, $body);
+  }
+  // Demo: ghi ra file hoặc hiển thị
+  file_put_contents(__DIR__.'/../email_log.txt', date('Y-m-d H:i:s')." | $to | $subject\n$body\n\n", FILE_APPEND);
+  return true;
+}
