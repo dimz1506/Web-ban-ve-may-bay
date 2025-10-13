@@ -16,10 +16,19 @@ if ($p !== null && $p !== 'home') {
     'users'        => 'admin/user.php',
     'staff'        => 'staff/staff_dashboard.php',
     'customer'     => 'customer/customer_dashboard.php',
-    'flights'     => 'admin/flights.php',
+    'flights'      => 'admin/flights.php',
     'promotions'   => 'admin/promotions.php',
-    'classes' => 'admin/classes.php',
-    'reports' => 'admin/reports.php'
+    'classes'      => 'admin/classes.php',
+    'reports'      => 'admin/reports.php',
+    'bookings'     => 'admin/bookings.php',
+    
+    'search_results' => 'booking/search_results.php',
+    'select_seat' => 'booking/select_seat.php',
+    'add_passengers' => 'booking/add_passengers.php',
+    'review_checkout' => 'booking/review_checkout.php',
+    'my_bookings' => 'booking/my_bookings.php',
+    'my_tickets' => 'booking/my_tickets.php',
+    'edit_ticket' => 'booking/edit_ticket.php',
   ];
   if (!isset($map[$p])) {
     http_response_code(404);
@@ -110,6 +119,7 @@ if ($p !== null && $p !== 'home') {
           </div>
           <div class="submit-row"><button class="btn" type="submit">Tìm chuyến</button></div>
         </form>
+        
         <datalist id="airports"><!-- filled by JS --></datalist>
       </div>
     </div>
