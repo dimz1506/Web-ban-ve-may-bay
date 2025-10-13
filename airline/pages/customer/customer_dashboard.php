@@ -60,7 +60,6 @@ $userName = htmlspecialchars(me()['ho_ten'] ?? 'Khách');
 
       <nav>
         <a href="index.php?p=customer">Trang của tôi</a>
-        <a href="index.php?p=book_search">Tìm chuyến</a>
         <a href="index.php?p=my_tickets">Vé của tôi</a>
       </nav>
 
