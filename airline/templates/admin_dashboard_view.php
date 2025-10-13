@@ -63,6 +63,14 @@ try {
   $recent_tickets = [];
 }
 
+if (!function_exists('current_user')) {
+  function current_user() {
+    // Example: return user info from session, adjust as needed
+    return isset($_SESSION['user']) ? $_SESSION['user'] : ['email' => 'admin@domain.com'];
+  }
+}
+$user = current_user();
+
 ?>
 
 
@@ -100,7 +108,7 @@ try {
           <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#0b63d6,#2ea1ff);display:flex;align-items:center;justify-content:center;color:white;font-weight:700">AD</div>
           <div>
             <div style="font-weight:700">Admin</div>
-            <div class="muted" style="font-size:13px">vunairexample@vnair.vn</div>
+            <div class="muted" style="font-size:13px"><?=htmlspecialchars($user['email']) ?></div>
           </div>
         </div>
 
