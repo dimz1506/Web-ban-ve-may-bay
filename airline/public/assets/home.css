@@ -65,6 +65,7 @@ a:hover {
   display: flex;
   align-items: center;
   gap: 10px;
+  
 }
 .btn {
   display: inline-flex;
@@ -85,6 +86,16 @@ a:hover {
   color: var(--brand);
   border-color: var(--brand);
 }
+
+
+.container.nav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  justify-content: space-between; /* brand ở trái, nav ở giữa/giữa-sau, nav-cta ở phải */
+  padding: 10px 0;
+}
+
 
 .topbar nav {
   display: flex;
