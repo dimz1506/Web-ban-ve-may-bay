@@ -91,10 +91,6 @@ $user = current_user();
   <header class="topbar">
     <div class="container nav" role="navigation" aria-label="Main navigation">
       <div class="brand"><div class="logo" aria-hidden="true">✈</div><div>VNAir Ticket</div></div>
-      <nav class="toplinks" aria-hidden="false">
-       
-        
-      </nav>
       <div class="nav-cta">
         <a class="btn outline" href="index.php?p=logout">Đăng xuất</a>
       </div>

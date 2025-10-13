@@ -33,16 +33,13 @@ try {
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bảng điều khiển Nhân viên | VNAir Ticket</title>
-  <link rel="stylesheet" href="assets/home.css">
   <link rel="stylesheet" href="assets/staff.css">
 </head>
 <body>
 
   <main class="container">
     <header style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px">
-      <div>
-        <h2>Trang Nhân viên</h2>
-      </div>
+      <div class="brand"><div class="logo" aria-hidden="true">✈</div><div>VNAir Ticket</div></div>
       <div class="actions">
         <a class="btn ghost" href="index.php?p=logout">Đăng xuất</a>
       </div>
@@ -65,9 +62,7 @@ try {
             </div>
           </div>
 
-          <div style="margin-top:12px" class="small muted">
-            Gợi ý: nhân viên có thể tra cứu vé, theo dõi chuyến gần tới và báo cáo sự cố. Các thao tác tạo/chỉnh sửa chuyến bay chỉ dành cho ADMIN.
-          </div>
+         
         </div>
 
         <div class="card" aria-labelledby="flightsTitle" style="margin-top:12px">
@@ -124,7 +119,7 @@ try {
             <a href="index.php?p=bookings">Tra cứu / Lọc vé</a>
             <a href="index.php?p=flights">Danh sách chuyến bay</a>
             <a href="index.php?p=reports">Báo cáo chung</a>
-            <a href="index.php?p=help">Quy trình & Hướng dẫn</a>
+            <a href="index.php?p=contact">Quy trình & Hướng dẫn</a>
           </div>
         </div>
 
