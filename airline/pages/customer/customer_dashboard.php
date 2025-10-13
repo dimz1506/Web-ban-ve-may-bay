@@ -1,46 +1,17 @@
-<!-- <?php
-// pages/customer_dashboard.php — Trang riêng cho Khách hàng
-if (!function_exists('db')) { require_once dirname(__DIR__).'/config.php'; }
-require_login(['CUSTOMER']);
-?>
-<!doctype html>
-<html lang="vi">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Trang khách hàng | VNAir Ticket</title>
-  <link rel="stylesheet" href="assets/home.css">
-  <style>.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin:16px 0}</style>
-</head>
-<body>
-<header class="topbar">
-  <div class="container nav">
-    <div class="brand"><div class="logo">✈</div><div>VNAir Ticket</div></div>
-    <nav>
-      <strong>Khách hàng</strong>
-    </nav>
-    <div class="nav-cta">
-      <a class="btn outline" href="index.php?p=logout">Đăng xuất</a>
-    </div>
-  </div>
-</header>
-<main class="container">
-  <h2>Xin chào!</h2>
-  <div class="card">
-    <p>Đây là khu vực dành cho <b>Khách hàng</b>. Bạn có thể:</p>
-  </div>
-</main>
-<footer><div class="container">© <span id="y"></span> VNAir Ticket</div></footer>
-<script>document.getElementById('y').textContent = new Date().getFullYear();</script>
-</body>
-</html> -->
-
 <?php
 // pages/customer_dashboard.php — Trang riêng cho Khách hàng (giao diện giống trang chủ)
+// Mục tiêu: giữ nguyên chức năng, làm sạch output (htmlspecialchars) và loại bớt phần comment thừa.
 if (!function_exists('db')) { require_once dirname(__DIR__).'/config.php'; }
 require_login(['CUSTOMER']);
 
-$userName = htmlspecialchars(me()['ho_ten'] ?? 'Khách');
+// lấy user hiện tại an toàn
+$user = null;
+if (function_exists('me')) {
+    $user = me();
+} elseif (function_exists('current_user')) {
+    $user = current_user();
+}
+$userName = htmlspecialchars($user['ho_ten'] ?? 'Khách', ENT_QUOTES, 'UTF-8');
 ?>
 <!doctype html>
 <html lang="vi">
@@ -123,7 +94,7 @@ $userName = htmlspecialchars(me()['ho_ten'] ?? 'Khách');
           </div>
           <div class="submit-row"><button class="btn" type="submit">Tìm chuyến</button></div>
         </form>
-        <datalist id="airports"><!-- filled by JS --></datalist>
+        <datalist id="airports"></datalist>
       </div>
     </div>
   </div>
@@ -166,6 +137,60 @@ $userName = htmlspecialchars(me()['ho_ten'] ?? 'Khách');
   </footer>
 
   <script src="assets/home.js" defer></script>
-  <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
+  <script>
+    // footer year
+    document.getElementById('y').textContent = new Date().getFullYear();
+
+    // UI: toggle one-way / round-trip
+    const onewayBtn = document.getElementById('tab-oneway');
+    const roundBtn = document.getElementById('tab-round');
+    const returnWrap = document.getElementById('returnWrap');
+
+    function setRound(on) {
+      if (on) {
+        roundBtn.classList.add('active');
+        onewayBtn.classList.remove('active');
+        returnWrap.hidden = false;
+      } else {
+        onewayBtn.classList.add('active');
+        roundBtn.classList.remove('active');
+        returnWrap.hidden = true;
+      }
+    }
+    if (onewayBtn && roundBtn) {
+      onewayBtn.addEventListener('click', ()=> setRound(false));
+      roundBtn.addEventListener('click', ()=> setRound(true));
+    }
+
+    // swap from/to
+    const swapBtn = document.getElementById('swapBtn');
+    if (swapBtn) {
+      swapBtn.addEventListener('click', function(){
+        const a = document.getElementById('from');
+        const b = document.getElementById('to');
+        const tmp = a.value;
+        a.value = b.value;
+        b.value = tmp;
+        a.focus();
+      });
+    }
+
+    // basic client validation on submit (keeps behavior)
+    const searchForm = document.getElementById('searchForm');
+    if (searchForm) {
+      searchForm.addEventListener('submit', function(e){
+        const from = document.getElementById('from').value.trim();
+        const to = document.getElementById('to').value.trim();
+        const depart = document.getElementById('depart').value;
+        if (!from || !to) {
+          e.preventDefault();
+          alert('Vui lòng nhập cả điểm đi và điểm đến.');
+        } else if (!depart) {
+          e.preventDefault();
+          alert('Vui lòng chọn ngày đi.');
+        }
+      });
+    }
+  </script>
 </body>
 </html>
