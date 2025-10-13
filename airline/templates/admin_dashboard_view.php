@@ -3,17 +3,13 @@
 
 $pdo = db();
 // TODO: thay các biến demo bằng truy vấn thật từ DB (COUNT, latest rows, v.v.)
-$demo_counts = [
-  'bookings' => 84,
-
-];
   // Thống kê số lượng bản ghi trong bảng nguoi_dung
 try {
   $pdo = db(); // hoặc global $pdo; nếu bạn đã có $pdo sẵn trong config.php
   $sql = "SELECT COUNT(*) AS total FROM nguoi_dung";
   $demo_counts['users'] = $pdo->query($sql)->fetchColumn();
   $demo_counts['flights'] = $pdo->query("SELECT COUNT(*) AS total FROM chuyen_bay")->fetchColumn();
-  //$demo_counts['bookings'] = $pdo->query("SELECT COUNT(*) AS total FROM dat_ve")->fetchColumn();
+  $demo_counts['bookings'] = $pdo->query("SELECT COUNT(*) AS total FROM ve")->fetchColumn();
   $demo_counts['promos'] = $pdo->query("SELECT COUNT(*) AS total FROM khuyen_mai")->fetchColumn();
 } catch (Exception $e) {
   error_log("Lỗi khi đếm người dùng: " . $e->getMessage());
@@ -38,6 +34,35 @@ try {
 }
 
 
+
+
+// Lấy dữ liệu đơn đặt mới nhất từ bảng ve
+$recent_tickets = [];
+try {
+  $pdo = db();
+
+  $sql = "
+     SELECT
+      v.so_ve AS ticket_no,
+      COALESCE(hk.ho_ten, '—') AS passenger_name,
+      cb.so_hieu AS flight_no,
+      v.trang_thai AS status
+    FROM ve v
+    LEFT JOIN hanh_khach hk ON hk.id = v.hanh_khach_id
+    LEFT JOIN chuyen_bay cb ON cb.id = v.chuyen_bay_id
+    ORDER BY v.phat_hanh_luc DESC, v.id DESC
+    LIMIT 5
+  ";
+
+  $st = $pdo->prepare($sql);
+  $st->execute();
+  $recent_tickets = $st->fetchAll(PDO::FETCH_ASSOC);
+
+} catch (Throwable $e) {
+  error_log("Lỗi khi lấy vé mới: " . $e->getMessage());
+  $recent_tickets = [];
+}
+
 ?>
 
 
@@ -59,12 +84,8 @@ try {
     <div class="container nav" role="navigation" aria-label="Main navigation">
       <div class="brand"><div class="logo" aria-hidden="true">✈</div><div>VNAir Ticket</div></div>
       <nav class="toplinks" aria-hidden="false">
-        <strong>Admin</strong>
        
-        <a href="index.php?p=users">Người dùng</a>
-        <a href="index.php?p=flights">Chuyến bay</a>
-        <a href="index.php?p=promotions">Khuyến mãi</a>
-         <a href="index.php?p=classes">Quản lý hạng ghế</a>
+        
       </nav>
       <div class="nav-cta">
         <a class="btn outline" href="index.php?p=logout">Đăng xuất</a>
@@ -84,11 +105,12 @@ try {
         </div>
 
         <nav style="margin-top:16px;">
-          <a href="index.php?p=dashboard" class="active">Tổng quan</a>
+          <a href="index.php?p=admin" class="active">Tổng quan</a>
           <a href="index.php?p=users">Quản lý tài khoản</a>
           <a href="index.php?p=flights">Quản lý chuyến bay</a>
           <a href="index.php?p=promotions">Quản lý khuyến mãi</a>
            <a href="index.php?p=classes">Quản lý hạng ghế</a>
+           <a href="index.php?p=bookings">Quản lý đơn đặt</a>
           <a href="index.php?p=reports">Báo cáo</a>
           <a href="index.php?p=settings">Cài đặt</a>
           
@@ -142,37 +164,41 @@ try {
         <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:18px;">
           <div class="card">
             <h3>Đơn đặt mới nhất</h3>
-            <div class="muted" style="margin-bottom:10px">Danh sách các đơn đặt gần đây (ví dụ). Thay bằng truy vấn DB.</div>
+            <div class="muted" style="margin-bottom:10px">Danh sách các đơn đặt gần đây</div>
             <!-- TODO: Lấy dữ liệu đơn đặt thực tế từ DB -->
             <table>
               <thead>
                 <tr>
-                  <th>Mã đơn</th>
+                  <th>Mã vé</th>
                   <th>Người đặt</th>
-                  <th>Chuyến</th>
+                  <th>Mã chuyến</th>
                   <th>Trạng thái</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td>#BK20251005</td>
-                  <td>Nguyễn Văn A</td>
-                  <td>HN → SG (05-10-2025)</td>
-                  <td>Đã thanh toán</td>
-                </tr>
-                <tr>
-                  <td>#BK20251004</td>
-                  <td>Trần Thị B</td>
-                  <td>DN → HN (04-10-2025)</td>
-                  <td>Chờ xác nhận</td>
-                </tr>
-                <tr>
-                  <td>#BK20251003</td>
-                  <td>Phạm Văn C</td>
-                  <td>SG → HN (03-10-2025)</td>
-                  <td>Hoàn thành</td>
-                </tr>
-              </tbody>
+             <tbody>
+      <?php if (empty($recent_tickets)): ?>
+        <tr><td colspan="4" style="text-align:center">Không có dữ liệu vé.</td></tr>
+      <?php else: ?>
+        <?php foreach ($recent_tickets as $t): ?>
+          <tr>
+            <td><?= htmlspecialchars($t['ticket_no']) ?></td>
+            <td><?= htmlspecialchars($t['passenger_name']) ?></td>
+            <td><?= htmlspecialchars($t['flight_no']) ?></td>
+            <td>
+              <?php
+                $map = [
+                  'DA_XUAT' => 'Đã xuất',
+                  'CHUA_XUAT' => 'Chưa xuất',
+                  'HUY' => 'Đã hủy',
+                  'HOAN' => 'Hoàn vé',
+                ];
+                echo htmlspecialchars($map[$t['status']] ?? $t['status']);
+              ?>
+            </td>
+          </tr>
+        <?php endforeach; ?>
+      <?php endif; ?>
+    </tbody>
             </table>
           </div>
 
@@ -204,15 +230,6 @@ try {
           </div>
         </div>
 
-        <div class="card">
-          <h3>Báo cáo & Hoạt động gần đây</h3>
-          <div class="muted" style="margin-bottom:8px">Hoạt động hệ thống (ví dụ):</div>
-          <ul>
-            <li class="muted">[2025-10-05 10:12] Tạo chuyến bay mới: VN123 (HN → SG)</li>
-            <li class="muted">[2025-10-04 17:04] Kích hoạt khuyến mãi: MUA2TANG1</li>
-            <li class="muted">[2025-10-03 09:30] Xóa tài khoản thử nghiệm: testuser01</li>
-          </ul>
-        </div>
 
       </section>
     </div>
