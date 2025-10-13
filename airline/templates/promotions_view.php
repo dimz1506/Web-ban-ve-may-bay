@@ -193,7 +193,13 @@
                 </table>
             </div>
         </div>
+
+         
     </main>
+        <footer>
+                <div class="container">© <span id="y"></span>2025 VNAir Ticket</div>
+        </footer>
+
 
     <script>
         // cập nhật input giá trị theo kiểu
