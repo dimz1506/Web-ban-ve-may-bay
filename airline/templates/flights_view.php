@@ -11,14 +11,29 @@
 
 <body>
         
-        <?php include __DIR__ . '/../includes/header.php'; ?>
+ <header class="topbar">
+  <div class="container nav">
+    <div class="brand">
+      <div class="logo">✈</div>
+      <div>VNAir Ticket</div>
+    </div>
+    <div class="nav-cta">
+      <a class="btn outline" href="<?= APP_BASE ?>/index.php?p=logout">Đăng xuất</a>
+    </div>
+  </div>
+</header>
 
         <main class="container">
                 <?php if ($m = flash_get('ok')): ?><div class="ok"><?= $m ?></div><?php endif; ?>
                 <?php if ($m = flash_get('err')): ?><div class="err" style="display:block"><?= $m ?></div><?php endif; ?>
 
-                <h2>Quản lý chuyến bay</h2>
-
+         <div class="p">
+                 <h2>Quản lý chuyến bay</h2>
+                 <div class="page-actions">
+                   <a class="btn ghost" href="index.php?p=admin">Quay lại</a>      
+                 </div>
+         </div>
+        <br>
                 <!-- Bộ lọc -->
                 <form class="card" method="get" action="index.php">
                         <input type="hidden" name="p" value="flights">
