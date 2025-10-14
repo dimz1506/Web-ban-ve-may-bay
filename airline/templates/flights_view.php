@@ -8,6 +8,39 @@
         <link rel="stylesheet" href="assets/home.css">
         <link rel="stylesheet" href="assets/admin.css">
 </head>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const routeSelect = document.querySelector('select[name="tuyen_bay_id"]');
+  const fareBlocks = document.querySelectorAll('[data-hang]');
+
+  routeSelect.addEventListener('change', () => {
+    const routeId = routeSelect.value;
+
+    fareBlocks.forEach(block => {
+      const hangId = block.dataset.hang;
+
+      fetch(`api_get_fare.php?tuyen_bay_id=${routeId}&hang_ghe_id=${hangId}`)
+        .then(res => res.json())
+        .then(json => {
+          if (json.success && json.data) {
+            const parent = block.closest('.field') || block.parentElement;
+            block.value = json.data.gia_co_ban ?? '';
+            
+            // Tìm các input khác cùng nhóm
+            const hanhLy = parent.querySelector('.hanh-ly');
+            const phiDoi = parent.querySelector('.phi-doi');
+            const duocHoan = parent.querySelector('.duoc-hoan');
+            
+            if (hanhLy) hanhLy.value = json.data.hanh_ly_kg ?? 0;
+            if (phiDoi) phiDoi.value = json.data.phi_doi ?? 0;
+            if (duocHoan) duocHoan.checked = !!json.data.duoc_hoan;
+          }
+        })
+        .catch(err => console.error('Lỗi tải giá:', err));
+    });
+  });
+});
+</script>
 
 <body>
 
@@ -129,7 +162,13 @@
                                                         <div class="field" style="grid-column: span 4;">
                                                                 <div><b><?= $c['ma'] ?> - <?= $c['ten'] ?></b></div>
                                                                 <label>Giá cơ bản
-                                                                        <input name="fare[<?= $c['id'] ?>][gia]" type="number" step="0.01" min="0"
+                                                                        <input
+                                                                                class="gia-co-ban"
+                                                                                data-hang="<?= $c['id'] ?>"
+                                                                                type="number"
+                                                                                name="fare[<?= $c['id'] ?>][gia]"
+                                                                                step="0.01"
+                                                                                min="0"
                                                                                 value="<?= htmlspecialchars($ex['gia_co_ban'] ?? '') ?>">
                                                                 </label>
                                                                 <label>Số ghế còn
@@ -137,14 +176,14 @@
                                                                                 value="<?= htmlspecialchars($ex['so_ghe_con'] ?? '') ?>">
                                                                 </label>
                                                                 <label>Hành lý (kg)
-                                                                        <input name="fare[<?= $c['id'] ?>][kg]" type="number" min="0"
+                                                                        <input clas="hanh_ly" name="fare[<?= $c['id'] ?>][kg]" type="number" min="0"
                                                                                 value="<?= htmlspecialchars($ex['hanh_ly_kg'] ?? '') ?>">
                                                                 </label>
                                                                 <label>Được hoàn?
-                                                                        <input name="fare[<?= $c['id'] ?>][hoan]" type="checkbox" <?= !empty($ex) && (int)$ex['duoc_hoan'] === 1 ? 'checked' : '' ?>>
+                                                                        <input class="duoc_hoan" name="fare[<?= $c['id'] ?>][hoan]" type="checkbox" <?= !empty($ex) && (int)$ex['duoc_hoan'] === 1 ? 'checked' : '' ?>>
                                                                 </label>
                                                                 <label>Phí đổi
-                                                                        <input name="fare[<?= $c['id'] ?>][phi_doi]" type="number" step="0.01" min="0"
+                                                                        <input class="phi_doi" name="fare[<?= $c['id'] ?>][phi_doi]" type="number" step="0.01" min="0"
                                                                                 value="<?= htmlspecialchars($ex['phi_doi'] ?? '') ?>">
                                                                 </label>
                                                         </div>

@@ -7,7 +7,7 @@ $demo_counts = [
   'bookings' => 84,
 
 ];
-  // Thống kê số lượng bản ghi trong bảng nguoi_dung
+// Thống kê số lượng bản ghi trong bảng nguoi_dung
 try {
   $pdo = db(); // hoặc global $pdo; nếu bạn đã có $pdo sẵn trong config.php
   $sql = "SELECT COUNT(*) AS total FROM nguoi_dung";
@@ -15,6 +15,9 @@ try {
   $demo_counts['flights'] = $pdo->query("SELECT COUNT(*) AS total FROM chuyen_bay")->fetchColumn();
   //$demo_counts['bookings'] = $pdo->query("SELECT COUNT(*) AS total FROM dat_ve")->fetchColumn();
   $demo_counts['promos'] = $pdo->query("SELECT COUNT(*) AS total FROM khuyen_mai")->fetchColumn();
+  $demo_counts['classes'] = $pdo->query("SELECT COUNT(*) AS total FROM hang_ghe")->fetchColumn();
+  $demo_counts['router'] = $pdo->query("SELECT COUNT(*) AS total FROM tuyen_bay")->fetchColumn();
+  $demo_counts['fares'] = $pdo->query("SELECT COUNT(*) AS total FROM gia_ve_mac_dinh")->fetchColumn();
 } catch (Exception $e) {
   error_log("Lỗi khi đếm người dùng: " . $e->getMessage());
   $demo_counts['users'] = 0;
@@ -51,20 +54,27 @@ try {
   <title>Bảng điều khiển Admin | VNAir Ticket</title>
   <link rel="stylesheet" href="assets/home.css">
   <link rel="stylesheet" href="assets/admin.css">
-  
+
 </head>
 
 <body>
   <header class="topbar">
     <div class="container nav" role="navigation" aria-label="Main navigation">
-      <div class="brand"><div class="logo" aria-hidden="true">✈</div><div>VNAir Ticket</div></div>
+      <div class="brand">
+        <div class="logo" aria-hidden="true">✈</div>
+        <div>VNAir Ticket</div>
+      </div>
       <nav class="toplinks" aria-hidden="false">
         <strong>Admin</strong>
-       
+
         <a href="index.php?p=users">Người dùng</a>
         <a href="index.php?p=flights">Chuyến bay</a>
         <a href="index.php?p=promotions">Khuyến mãi</a>
-         <a href="index.php?p=classes">Quản lý hạng ghế</a>
+        <a href="index.php?p=classes">Hạng ghế</a>
+        <a href="index.php?p=router">Tuyến bay</a>
+        <a href="index.php?p=fare">Giá vé</a>
+
+
       </nav>
       <div class="nav-cta">
         <a class="btn outline" href="index.php?p=logout">Đăng xuất</a>
@@ -88,10 +98,13 @@ try {
           <a href="index.php?p=users">Quản lý tài khoản</a>
           <a href="index.php?p=flights">Quản lý chuyến bay</a>
           <a href="index.php?p=promotions">Quản lý khuyến mãi</a>
-           <a href="index.php?p=classes">Quản lý hạng ghế</a>
+          <a href="index.php?p=classes">Quản lý hạng ghế</a>
+          <a href="index.php?p=router">Quản lý tuyến bay</a>
+          <a href="index.php?p=fare">Quản lý giá vé</a>
+          <a href="index.php?p=sanbay">Quản lý sân bay</a>
           <a href="index.php?p=reports">Báo cáo</a>
           <a href="index.php?p=settings">Cài đặt</a>
-          
+
         </nav>
 
         <div style="margin-top:18px;">
@@ -100,7 +113,10 @@ try {
             <a href="index.php?p=users&pact=create">Thêm tài khoản</a>
             <a href="index.php?p=flights&pact=create">Tạo chuyến bay</a>
             <a href="index.php?p=promotions&pact=create">Tạo khuyến mãi</a>
-             <a href="index.php?p=classes">Quản lý hạng ghế</a>
+            <a href="index.php?p=classes">Quản lý hạng ghế</a>
+            <a href="index.php?p=router&pact=create">Tạo tuyến bay</a>
+            <a href="index.php?p=fare&pact=create">Thêm giá vé</a>
+            <a href="index.php?p=sanbay&pact=create">Thêm sân bay</a>
             <a href="index.php?p=reports">Xem báo cáo</a>
           </div>
         </div>
@@ -119,22 +135,28 @@ try {
         <div class="grid-stats" role="status" aria-live="polite">
           <div class="stat">
             <div class="label">Tổng người dùng</div>
-            <div class="num"><?=number_format($demo_counts['users'])?></div>
+            <div class="num"><?= number_format($demo_counts['users']) ?></div>
             <div class="muted">Thành viên đăng ký</div>
           </div>
           <div class="stat">
             <div class="label">Chuyến bay</div>
-            <div class="num"><?=number_format($demo_counts['flights'])?></div>
+            <div class="num"><?= number_format($demo_counts['flights']) ?></div>
             <div class="muted">Tuyến đang hoạt động</div>
           </div>
+          <!-- <div class="stat">
+            <div class="label">Tuyến bay</div>
+            <div class="num"><?= number_format($demo_counts['routes']) ?></div>
+            <div class="muted">Tuyến nội địa & quốc tế</div>
+          </div> -->
+
           <div class="stat">
             <div class="label">Đơn đặt</div>
-            <div class="num"><?=number_format($demo_counts['bookings'])?></div>
+            <div class="num"><?= number_format($demo_counts['bookings']) ?></div>
             <div class="muted">Tổng đặt vé</div>
           </div>
           <div class="stat">
             <div class="label">Khuyến mãi</div>
-            <div class="num"><?=number_format($demo_counts['promos'])?></div>
+            <div class="num"><?= number_format($demo_counts['promos']) ?></div>
             <div class="muted">Ưu đãi đang chạy</div>
           </div>
         </div>
@@ -181,20 +203,26 @@ try {
             <div class="muted" style="margin-bottom:10px">Danh sách đăng ký gần đây</div>
             <table>
               <thead>
-                <tr><th>Tên</th><th>Email</th><th>Ngày</th></tr>
+                <tr>
+                  <th>Tên</th>
+                  <th>Email</th>
+                  <th>Ngày</th>
+                </tr>
               </thead>
               <tbody>
                 <?php if (empty($recent_users)): ?>
-        <tr><td colspan="3" style="text-align:center;">Không có dữ liệu</td></tr>
-      <?php else: ?>
-        <?php foreach ($recent_users as $user): ?>
-          <tr>
-            <td><?= htmlspecialchars($user['name']) ?></td>
-            <td><?= htmlspecialchars($user['email']) ?></td>
-            <td><?= htmlspecialchars($user['created']) ?></td>
-          </tr>
-        <?php endforeach; ?>
-      <?php endif; ?>
+                  <tr>
+                    <td colspan="3" style="text-align:center;">Không có dữ liệu</td>
+                  </tr>
+                <?php else: ?>
+                  <?php foreach ($recent_users as $user): ?>
+                    <tr>
+                      <td><?= htmlspecialchars($user['name']) ?></td>
+                      <td><?= htmlspecialchars($user['email']) ?></td>
+                      <td><?= htmlspecialchars($user['created']) ?></td>
+                    </tr>
+                  <?php endforeach; ?>
+                <?php endif; ?>
               </tbody>
             </table>
 

@@ -19,7 +19,12 @@ if ($p !== null && $p !== 'home') {
     'flights'     => 'admin/flights.php',
     'promotions'   => 'admin/promotions.php',
     'classes' => 'admin/classes.php',
-    'reports' => 'admin/reports.php'
+    'reports' => 'admin/reports.php',
+    'router' => 'admin/router.php',
+    'fare' => 'admin/fare.php',
+    'search' => 'search.php',
+    'sanbay' => 'admin/sanbay.php',
+
   ];
   if (!isset($map[$p])) {
     http_response_code(404);
