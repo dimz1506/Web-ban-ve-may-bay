@@ -152,9 +152,10 @@ $emptySeats = $totalSeats - $bookedSeats;
     <div class="btn-row">
       <button type="submit" class="btn" id="continueBtn" aria-disabled="true" disabled>Tiếp tục</button>
       <a href="javascript:history.back()" class="btn outline">← Quay lại tìm chuyến</a>
-      <a href="index.php" class="btn outline">← Trang chủ</a>
+      <a href="index.php?p=customer" class="btn outline">← Trang chủ</a>
     </div>
   </form>
+  <br>
 </main>
 
 <footer id="lien-he">
