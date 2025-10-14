@@ -3,8 +3,22 @@
 if (!function_exists('db')) {
         require_once dirname(__DIR__) . '/config.php';
 }
-require_login(['ADMIN']);
+require_login(['ADMIN', 'STAFF']);
 
+$user = function_exists('me') ? me() : (function_exists('current_user') ? current_user() : null);
+
+$isAdmin = false;
+$isStaff = false;
+if ($user) {
+    // tùy cấu trúc user: có thể là ['role_ma'] hoặc ['role'] hoặc ['vai_tro_ma']
+    if (!empty($user['role_ma']) && $user['role_ma'] === 'ADMIN') $isAdmin = true;
+    if (!empty($user['role']) && $user['role'] === 'ADMIN') $isAdmin = true;
+    if (!empty($user['vai_tro_ma']) && $user['vai_tro_ma'] === 'ADMIN') $isAdmin = true;
+
+    if (!empty($user['role_ma']) && $user['role_ma'] === 'STAFF') $isStaff = true;
+    if (!empty($user['role']) && $user['role'] === 'STAFF') $isStaff = true;
+    if (!empty($user['vai_tro_ma']) && $user['vai_tro_ma'] === 'STAFF') $isStaff = true;
+}
 $pdo = db();
 
 function flash_ok($m)
@@ -54,6 +68,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         require_post_csrf();
         $action = $_POST['action'] ?? '';
 
+       $mutating = in_array($action, ['create','update','delete'], true);
+    if ($mutating && !$isAdmin) {
+        flash_err('Bạn không có quyền thực hiện hành động này.');
+        // giữ lại filter khi redirect (giống phần cuối của file)
+        $qs = [];
+        foreach (['q', 'route', 'status', 'from', 'to'] as $k) {
+            if (isset($_GET[$k]) && $_GET[$k] !== '') {
+                $qs[] = "$k=" . urlencode((string)$_GET[$k]);
+            }
+        }
+        $suffix = $qs ? '&' . implode('&', $qs) : '';
+        redirect('index.php?p=flights' . $suffix);
+        exit;
+    }
         try {
                 if ($action === 'create' || $action === 'update') {
                         $id        = (int)($_POST['id'] ?? 0);

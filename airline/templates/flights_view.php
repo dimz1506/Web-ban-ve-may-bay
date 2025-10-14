@@ -43,15 +43,26 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <body>
-
-        <?php include __DIR__ . '/../includes/header.php'; ?>
+        
+ <header class="topbar">
+  <div class="container nav">
+    <div class="brand">
+      <div class="logo">✈</div>
+      <div>VNAir Ticket</div>
+    </div>
+    <div class="nav-cta">
+      <a class="btn outline" href="<?= APP_BASE ?>/index.php?p=logout">Đăng xuất</a>
+    </div>
+  </div>
+</header>
 
         <main class="container">
                 <?php if ($m = flash_get('ok')): ?><div class="ok"><?= $m ?></div><?php endif; ?>
                 <?php if ($m = flash_get('err')): ?><div class="err" style="display:block"><?= $m ?></div><?php endif; ?>
 
-                <h2>Quản lý chuyến bay</h2>
-
+         <div class="p">
+    <h2>Quản lý chuyến bay</h2>
+</div>
                 <!-- Bộ lọc -->
                 <form class="card" method="get" action="index.php">
                         <input type="hidden" name="p" value="flights">
@@ -92,10 +103,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                 </form>
 
-                <!-- Form tạo/sửa -->
-                <div class="card">
-                        <h3><?= $edit_row ? 'Sửa chuyến #' . (int)$edit_row['id'] : 'Thêm chuyến bay' ?></h3>
-                        <form method="post" autocomplete="off">
+               
+                <?php if (!empty($isAdmin)): ?>
+              <div class="card">
+             <h3><?= $edit_row ? 'Sửa chuyến #' . (int)$edit_row['id'] : 'Thêm chuyến bay' ?></h3>
+               <form method="post" autocomplete="off">
                                 <input type="hidden" name="_csrf" value="<?= csrf_token() ?>">
                                 <?php if ($edit_row): ?><input type="hidden" name="id" value="<?= (int)$edit_row['id'] ?>"><?php endif; ?>
                                 <div class="grid">
@@ -198,7 +210,13 @@ document.addEventListener('DOMContentLoaded', () => {
                                         <?php endif; ?>
                                 </div>
                         </form>
-                </div>
+                 </div>
+              <?php else: ?>
+            <div class="card">
+             <h3>Quản lý chuyến bay</h3>
+              <div class="muted">Bạn không có quyền tạo hoặc sửa chuyến bay. Nếu cần, vui lòng liên hệ ADMIN.</div>
+               </div>
+                <?php endif; ?>
 
                 <!-- Bảng danh sách -->
                 <div class="card">
@@ -224,20 +242,39 @@ document.addEventListener('DOMContentLoaded', () => {
                                                 <td><?= htmlspecialchars($f['trang_thai']) ?></td>
                                                 <td><?= $f['so_dang_ba'] ? htmlspecialchars($f['so_dang_ba'] . ' — ' . $f['dong_may_bay']) : '<span class="muted">Chưa gán</span>' ?></td>
                                                 <td>
-                                                        <a class="btn outline" href="index.php?p=flights&edit=<?= (int)$f['id'] ?>">Sửa</a>
+                                                        <!-- <a class="btn outline" href="index.php?p=flights&edit=<?= (int)$f['id'] ?>">Sửa</a>
                                                         <form method="post" class="inline" onsubmit="return confirm('Xóa chuyến #<?= (int)$f['id'] ?>?')">
                                                                 <input type="hidden" name="_csrf" value="<?= csrf_token() ?>">
                                                                 <input type="hidden" name="id" value="<?= (int)$f['id'] ?>">
                                                                 <button class="btn" name="action" value="delete" type="submit">Xóa</button>
-                                                        </form>
+                                                        </form> -->
+                                                        <?php if (!empty($isAdmin)): ?>
+                                                    <a href="index.php?p=flights&edit=<?= (int)$f['id'] ?>" class="btn outline">Sửa</a>
+                                                    <form method="post" style="display:inline" onsubmit="return confirm('Xóa chuyến bay?')">
+                                                    <input type="hidden" name="_csrf" value="<?= htmlspecialchars(csrf_token()) ?>">
+                                                    <input type="hidden" name="id" value="<?= (int)$f['id'] ?>">
+                                                   <button class="btn danger" name="action" value="delete">Xóa</button>
+                                                     </form>
+                                             <?php else: ?>
+                                          <span class="small-muted">Không có quyền</span>
+                                            <?php endif; ?>
+
                                                 </td>
                                         </tr>
                                 <?php endforeach; ?>
                         </table>
                         <p class="muted">Hiển thị tối đa 300 bản ghi theo bộ lọc.</p>
                 </div>
+                <br>
+                <div class="page-actions">
+        <?php if (!empty($isAdmin)): ?>
+            <a class="btn ghost" href="index.php?p=admin">Quay lại trang Admin</a>
+        <?php elseif (!empty($isStaff)): ?>
+            <a class="btn ghost" href="index.php?p=staff">Quay lại trang Nhân viên</a>
+        <?php endif; ?>
+    </div>
         </main>
-
+        <br>
         <footer>
                 <div class="container">© <span id="y"></span> VNAir Ticket</div>
         </footer>

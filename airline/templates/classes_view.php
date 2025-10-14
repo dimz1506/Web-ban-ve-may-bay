@@ -4,13 +4,17 @@
 <head>
          <meta charset="utf-8">
          <title>Quản lý hạng ghế</title>
-         <link rel="stylesheet" href="assets/admin.css">
+         <link rel="stylesheet" href="assets/home.css">
+         <link rel="stylesheet" href="assets/classes_view.css">
 </head>
 
 <body>
          <?php include __DIR__ . '/../includes/header.php'; ?>
          <main class="container">
-                  <h2>Hạng ghế</h2>
+                   <div class="p">
+                 <h2>Quản lý hạng ghế</h2>
+                 </div>
+                 <br>
                   <?php if ($m = flash_get('ok')) : ?><div class="ok"><?= $m ?></div><?php endif; ?>
                   <?php if ($m = flash_get('err')) : ?><div class="err"><?= $m ?></div><?php endif; ?>
 
@@ -40,10 +44,10 @@
                                                       <label>Màu sắc</label>
                                                       <input type="color" name="mau_sac" value="<?= htmlspecialchars($edit_row['mau_sac'] ?? '#cccccc') ?>">
                                              </div>
-                                             <div class="field">
+                                             <!-- <div class="field">
                                                       <label>Thứ tự</label>
                                                       <input type="number" name="thu_tu" value="<?= htmlspecialchars($edit_row['thu_tu'] ?? 0) ?>">
-                                             </div>
+                                             </div> -->
                                     </div>
                                     <div class="submit-row">
                                              <button class="btn primary" name="action" value="<?= $edit_row ? 'update' : 'create' ?>">Lưu</button>
@@ -64,7 +68,7 @@
                                              <th>Mô tả</th>
                                              <th>Tiện ích</th>
                                              <th>Màu sắc</th>
-                                             <th>Thứ tự</th>
+                            
                                              <th>Hành động</th>
                                     </tr>
                                     <?php foreach ($rows as $r): ?>
@@ -81,7 +85,7 @@
                                                                         </span>
                                                                <?php endif; ?>
                                                       </td>
-                                                      <td><?= (int)$r['thu_tu'] ?></td>
+                                                    
                                                       <td>
                                                                <a href="index.php?p=classes&edit=<?= $r['id'] ?>" class="btn outline">Sửa</a>
                                                                <form method="post" style="display:inline" onsubmit="return confirm('Xóa hạng ghế?')">
@@ -94,7 +98,13 @@
                                     <?php endforeach; ?>
                            </table>
                   </div>
+                  <div class="page-actions">
+                   <a class="btn" href="index.php?p=admin">Quay lại</a>      
+                 </div>
          </main>
+           <footer>
+                <div class="container">© 2025<span id="y"></span> VNAir Ticket</div>
+        </footer>
 </body>
 
 </html>

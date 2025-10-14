@@ -1,45 +1,58 @@
-.form-grid {
-         display: grid;
-         grid-template-columns: repeat(2, 1fr);
-         gap: 14px 20px;
-         margin-top: 10px
-}
+:root{
+            --bg:#f6f8fb;
+            --card:#ffffff;
+            --muted:#6b7280;
+            --primary:#0b63d6;
+            --accent:#f5c242;
+            --border:#e6e9ef;
+            --radius:12px;
+            --success:#16a34a;
+            --danger:#ef4444;
+        }
+        *{box-sizing:border-box}
+        body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;background:var(--bg);color:#0f172a}
+        .container{max-width:1100px;margin:20px auto;padding:0 16px}
+        h2{margin:0 0 14px;font-size:20px}
 
-.field {
-         display: flex;
-         flex-direction: column
-}
+        .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 6px 18px rgba(17,24,39,0.03)}
+        .form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+        .field{background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px}
+        .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:8px;font-weight:700}
+        .field input[type="text"], .field input[type="number"], .field input[type="datetime-local"], .field select{
+            width:100%;border:0;outline:0;font-size:15px;padding:6px 0;background:transparent;color:var(--text)
+        }
+        .field .helper{font-size:12px;color:var(--muted);margin-top:6px}
 
-.field label {
-         font-weight: 600;
-         margin-bottom: 4px
-}
+        /* full-width fields in grid */
+        .col-span-2{grid-column:span 2}
 
-.tbl {
-         width: 100%;
-         border-collapse: collapse;
-         margin-top: 12px
-}
+        /* switch */
+        .switch { display:inline-flex; align-items:center; gap:10px; }
+        .switch input[type="checkbox"]{appearance:none;width:42px;height:26px;border-radius:999px;background:#e6e9ef;position:relative;cursor:pointer;outline:none;border:0;transition:all .15s}
+        .switch input[type="checkbox"]::after{content:"";position:absolute;left:4px;top:4px;width:18px;height:18px;background:#fff;border-radius:50%;transition:all .15s;box-shadow:0 2px 6px rgba(2,6,23,0.08)}
+        .switch input[type="checkbox"]:checked{background:var(--primary)}
+        .switch input[type="checkbox"]:checked::after{transform:translateX(16px)}
+        .switch label{font-weight:700;color:var(--muted);font-size:13px}
 
-.tbl th,
-.tbl td {
-         border: 1px solid var(--border);
-         padding: 8px;
-         text-align: left
-}
+        .submit-row{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
+        .btn{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;background:var(--primary);color:#fff;border:0;cursor:pointer;font-weight:700;text-decoration:none}
+        .btn.outline{background:transparent;color:var(--primary);border:1px solid rgba(11,99,214,0.12)}
+        .btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+        .btn:focus{outline:2px solid rgba(11,99,214,0.12);outline-offset:2px}
 
-.tbl th {
-         background: #f0f4f8
-}
+        /* table */
+        .tbl{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+        .tbl thead th{position:sticky;top:0;background:linear-gradient(180deg,#fff,#fbfdff);padding:12px;text-align:left;border-bottom:2px solid var(--border);z-index:2;font-weight:700;color:var(--muted)}
+        .tbl th,.tbl td{padding:12px;border-bottom:1px solid rgba(15,23,42,0.04);vertical-align:middle}
+        .tbl tbody tr:nth-child(even){background:rgba(11,99,214,0.02)}
+        .tbl tbody tr:hover{background:#f7fbff}
+        .small-muted{font-size:12px;color:var(--muted)}
 
-.tbl tr:nth-child(even) {
-         background: #f9fbfd
-}
+        .scope-pill{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(11,99,214,0.06);color:var(--primary);font-weight:700;font-size:13px}
 
-.card {
-         background: #fff;
-         border: 1px solid var(--border);
-         border-radius: 10px;
-         padding: 16px;
-         margin: 16px 0
-}
+        /* responsive */
+        @media (max-width:860px){
+            .form-grid{grid-template-columns:1fr}
+            .col-mobile-hidden{display:none}
+            .tbl{font-size:13px}
+        }

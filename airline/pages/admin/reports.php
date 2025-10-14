@@ -3,7 +3,7 @@
 if (!function_exists('db')) {
     require_once dirname(__DIR__) . '/config.php';
 }
-require_login(['ADMIN']);
+require_login(['ADMIN', 'STAFF']);
 $pdo = db();
 
 // nhận khoảng thời gian lọc

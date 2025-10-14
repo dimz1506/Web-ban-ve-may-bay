@@ -3,6 +3,8 @@
 // Router + Trang chủ (landing). Khi có tham số ?p=... sẽ nạp trang trong /pages.
 require_once dirname(__DIR__) . '/config.php';
 
+
+
 $p = $_GET['p'] ?? null;
 
 // Nếu có tham số p (và không phải 'home'), dùng router trang cũ
@@ -16,15 +18,25 @@ if ($p !== null && $p !== 'home') {
     'users'        => 'admin/user.php',
     'staff'        => 'staff/staff_dashboard.php',
     'customer'     => 'customer/customer_dashboard.php',
-    'flights'     => 'admin/flights.php',
+    'contact'      => 'customer/contact.php',
+    'profile'      => 'customer/profile.php',
+    'flights'      => 'admin/flights.php',
     'promotions'   => 'admin/promotions.php',
-    'classes' => 'admin/classes.php',
-    'reports' => 'admin/reports.php',
-    'router' => 'admin/router.php',
-    'fare' => 'admin/fare.php',
-    'search' => 'search.php',
-    'sanbay' => 'admin/sanbay.php',
+    'classes'      => 'admin/classes.php',
+    'reports'      => 'admin/reports.php',
+    'bookings'     => 'admin/bookings.php',
+    'router'      => 'admin/router.php',
+    'sanbay'    => 'admin/sanbay.php',
+    'fare'        => 'admin/fare.php',
+    
 
+    'search_results' => 'booking/search_results.php',
+    'select_seat' => 'booking/select_seat.php',
+    'add_passengers' => 'booking/add_passengers.php',
+    'review_checkout' => 'booking/review_checkout.php',
+    'my_bookings' => 'booking/my_bookings.php',
+    'my_tickets' => 'booking/my_tickets.php',
+    'edit_ticket' => 'booking/edit_ticket.php',
   ];
   if (!isset($map[$p])) {
     http_response_code(404);
@@ -77,7 +89,8 @@ if ($p !== null && $p !== 'home') {
           <button class="tab" type="button" id="tab-round">Khứ hồi</button>
         </div>
 
-        <form id="searchForm" autocomplete="off">
+        <form id="searchForm" action="index.php" method="get" autocomplete="off">
+          <input type="hidden" name="p" value="search_results">
           <div class="err" id="errBox" role="alert"></div>
 
           <div class="grid">
@@ -115,6 +128,7 @@ if ($p !== null && $p !== 'home') {
           </div>
           <div class="submit-row"><button class="btn" type="submit">Tìm chuyến</button></div>
         </form>
+        
         <datalist id="airports"><!-- filled by JS --></datalist>
       </div>
     </div>
