@@ -9,60 +9,60 @@
         <link rel="stylesheet" href="assets/admin.css">
 </head>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const routeSelect = document.querySelector('select[name="tuyen_bay_id"]');
-  const fareBlocks = document.querySelectorAll('[data-hang]');
+        document.addEventListener('DOMContentLoaded', () => {
+                const routeSelect = document.querySelector('select[name="tuyen_bay_id"]');
+                const fareBlocks = document.querySelectorAll('[data-hang]');
 
-  routeSelect.addEventListener('change', () => {
-    const routeId = routeSelect.value;
+                routeSelect.addEventListener('change', () => {
+                        const routeId = routeSelect.value;
 
-    fareBlocks.forEach(block => {
-      const hangId = block.dataset.hang;
+                        fareBlocks.forEach(block => {
+                                const hangId = block.dataset.hang;
 
-      fetch(`api_get_fare.php?tuyen_bay_id=${routeId}&hang_ghe_id=${hangId}`)
-        .then(res => res.json())
-        .then(json => {
-          if (json.success && json.data) {
-            const parent = block.closest('.field') || block.parentElement;
-            block.value = json.data.gia_co_ban ?? '';
-            
-            // Tìm các input khác cùng nhóm
-            const hanhLy = parent.querySelector('.hanh-ly');
-            const phiDoi = parent.querySelector('.phi-doi');
-            const duocHoan = parent.querySelector('.duoc-hoan');
-            
-            if (hanhLy) hanhLy.value = json.data.hanh_ly_kg ?? 0;
-            if (phiDoi) phiDoi.value = json.data.phi_doi ?? 0;
-            if (duocHoan) duocHoan.checked = !!json.data.duoc_hoan;
-          }
-        })
-        .catch(err => console.error('Lỗi tải giá:', err));
-    });
-  });
-});
+                                fetch(`api_get_fare.php?tuyen_bay_id=${routeId}&hang_ghe_id=${hangId}`)
+                                        .then(res => res.json())
+                                        .then(json => {
+                                                if (json.success && json.data) {
+                                                        const parent = block.closest('.field') || block.parentElement;
+                                                        block.value = json.data.gia_co_ban ?? '';
+
+                                                        // Tìm các input khác cùng nhóm
+                                                        const hanhLy = parent.querySelector('.hanh-ly');
+                                                        const phiDoi = parent.querySelector('.phi-doi');
+                                                        const duocHoan = parent.querySelector('.duoc-hoan');
+
+                                                        if (hanhLy) hanhLy.value = json.data.hanh_ly_kg ?? 0;
+                                                        if (phiDoi) phiDoi.value = json.data.phi_doi ?? 0;
+                                                        if (duocHoan) duocHoan.checked = !!json.data.duoc_hoan;
+                                                }
+                                        })
+                                        .catch(err => console.error('Lỗi tải giá:', err));
+                        });
+                });
+        });
 </script>
 
 <body>
-        
- <header class="topbar">
-  <div class="container nav">
-    <div class="brand">
-      <div class="logo">✈</div>
-      <div>VNAir Ticket</div>
-    </div>
-    <div class="nav-cta">
-      <a class="btn outline" href="<?= APP_BASE ?>/index.php?p=logout">Đăng xuất</a>
-    </div>
-  </div>
-</header>
+
+        <header class="topbar">
+                <div class="container nav">
+                        <div class="brand">
+                                <div class="logo">✈</div>
+                                <div>VNAir Ticket</div>
+                        </div>
+                        <div class="nav-cta">
+                                <a class="btn outline" href="<?= APP_BASE ?>/index.php?p=logout">Đăng xuất</a>
+                        </div>
+                </div>
+        </header>
 
         <main class="container">
                 <?php if ($m = flash_get('ok')): ?><div class="ok"><?= $m ?></div><?php endif; ?>
                 <?php if ($m = flash_get('err')): ?><div class="err" style="display:block"><?= $m ?></div><?php endif; ?>
 
-         <div class="p">
-    <h2>Quản lý chuyến bay</h2>
-</div>
+                <div class="p">
+                        <h2>Quản lý chuyến bay</h2>
+                </div>
                 <!-- Bộ lọc -->
                 <form class="card" method="get" action="index.php">
                         <input type="hidden" name="p" value="flights">
@@ -103,119 +103,122 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                 </form>
 
-               
+
                 <?php if (!empty($isAdmin)): ?>
-              <div class="card">
-             <h3><?= $edit_row ? 'Sửa chuyến #' . (int)$edit_row['id'] : 'Thêm chuyến bay' ?></h3>
-               <form method="post" autocomplete="off">
-                                <input type="hidden" name="_csrf" value="<?= csrf_token() ?>">
-                                <?php if ($edit_row): ?><input type="hidden" name="id" value="<?= (int)$edit_row['id'] ?>"><?php endif; ?>
-                                <div class="grid">
-                                        <div class="field" style="grid-column: span 3;">
-                                                <label>Số hiệu</label>
-                                                <input name="so_hieu" required value="<?= htmlspecialchars($edit_row['so_hieu'] ?? '') ?>" placeholder="VN123">
-                                        </div>
-                                        <div class="field" style="grid-column: span 3;">
-                                                <label>Tuyến</label>
-                                                <select name="tuyen_bay_id" required>
-                                                        <?php foreach ($routes as $r): ?>
-                                                                <option value="<?= $r['id'] ?>" <?= isset($edit_row['tuyen_bay_id']) && (int)$edit_row['tuyen_bay_id'] === $r['id'] ? 'selected' : '' ?>>
-                                                                        <?= $r['ma_tuyen'] ?> (<?= $r['di'] ?>→<?= $r['den'] ?>)
-                                                                </option>
-                                                        <?php endforeach; ?>
-                                                </select>
-                                                <div class="muted">Nếu thiếu tuyến, hãy tạo trong phần quản trị tuyến_bay.</div>
-                                        </div>
-                                        <div class="field" style="grid-column: span 3;">
-                                                <label>Tàu bay (tuỳ chọn)</label>
-                                                <select name="tau_bay_id">
-                                                        <option value="">-- Chưa gán --</option>
-                                                        <?php foreach ($planes as $a): ?>
-                                                                <option value="<?= $a['id'] ?>" <?= isset($edit_row['tau_bay_id']) && (string)$edit_row['tau_bay_id'] === (string)$a['id'] ? 'selected' : '' ?>>
-                                                                        <?= $a['so_dang_ba'] ?: ('ID ' . $a['id']) ?> — <?= $a['dong_may_bay'] ?>
-                                                                </option>
-                                                        <?php endforeach; ?>
-                                                </select>
-                                        </div>
-                                        <div class="field" style="grid-column: span 3;">
-                                                <label>Trạng thái</label>
-                                                <select name="trang_thai">
-                                                        <?php foreach (['LEN_KE_HOACH', 'HUY', 'TRE', 'DA_CAT_CANH', 'DA_HA_CANH'] as $s): ?>
-                                                                <option <?= $edit_row && $edit_row['trang_thai'] === $s ? 'selected' : '' ?>><?= $s ?></option>
-                                                        <?php endforeach; ?>
-                                                </select>
-                                        </div>
-                                        <div class="field" style="grid-column: span 3;">
-                                                <label>Giờ đi</label>
-                                                <input name="gio_di" type="datetime-local" required
-                                                        value="<?= isset($edit_row['gio_di']) ? date('Y-m-d\TH:i', strtotime($edit_row['gio_di'])) : '' ?>">
-                                        </div>
-                                        <div class="field" style="grid-column: span 3;">
-                                                <label>Giờ đến</label>
-                                                <input name="gio_den" type="datetime-local" required
-                                                        value="<?= isset($edit_row['gio_den']) ? date('Y-m-d\TH:i', strtotime($edit_row['gio_den'])) : '' ?>">
-                                        </div>
-                                        <div class="field" style="grid-column: span 2;">
-                                                <label>Tiền tệ</label>
-                                                <select name="tien_te">
-                                                        <?php foreach (['VND', 'USD', 'EUR'] as $ccy): ?>
-                                                                <option <?= $edit_row && $edit_row['tien_te'] === $ccy ? 'selected' : '' ?>><?= $ccy ?></option>
-                                                        <?php endforeach; ?>
-                                                </select>
-                                        </div>
-                                </div>
-
-                                <!-- Giá theo hạng ghế -->
-                                <div class="card" style="margin-top:12px">
-                                        <h4>Giá & chỗ theo hạng ghế</h4>
+                        <div class="card">
+                                <h3><?= $edit_row ? 'Sửa chuyến #' . (int)$edit_row['id'] : 'Thêm chuyến bay' ?></h3>
+                                <form method="post" autocomplete="off">
+                                        <input type="hidden" name="_csrf" value="<?= csrf_token() ?>">
+                                        <?php if ($edit_row): ?><input type="hidden" name="id" value="<?= (int)$edit_row['id'] ?>"><?php endif; ?>
                                         <div class="grid">
-                                                <?php foreach ($classes as $c):
-                                                        $ex = $edit_row ? ($fares[$c['id']] ?? null) : null; ?>
-                                                        <div class="field" style="grid-column: span 4;">
-                                                                <div><b><?= $c['ma'] ?> - <?= $c['ten'] ?></b></div>
-                                                                <label>Giá cơ bản
-                                                                        <input
-                                                                                class="gia-co-ban"
-                                                                                data-hang="<?= $c['id'] ?>"
-                                                                                type="number"
-                                                                                name="fare[<?= $c['id'] ?>][gia]"
-                                                                                step="0.01"
-                                                                                min="0"
-                                                                                value="<?= htmlspecialchars($ex['gia_co_ban'] ?? '') ?>">
-                                                                </label>
-                                                                <label>Số ghế còn
-                                                                        <input name="fare[<?= $c['id'] ?>][so_ghe]" type="number" min="0"
-                                                                                value="<?= htmlspecialchars($ex['so_ghe_con'] ?? '') ?>">
-                                                                </label>
-                                                                <label>Hành lý (kg)
-                                                                        <input clas="hanh_ly" name="fare[<?= $c['id'] ?>][kg]" type="number" min="0"
-                                                                                value="<?= htmlspecialchars($ex['hanh_ly_kg'] ?? '') ?>">
-                                                                </label>
-                                                                <label>Được hoàn?
-                                                                        <input class="duoc_hoan" name="fare[<?= $c['id'] ?>][hoan]" type="checkbox" <?= !empty($ex) && (int)$ex['duoc_hoan'] === 1 ? 'checked' : '' ?>>
-                                                                </label>
-                                                                <label>Phí đổi
-                                                                        <input class="phi_doi" name="fare[<?= $c['id'] ?>][phi_doi]" type="number" step="0.01" min="0"
-                                                                                value="<?= htmlspecialchars($ex['phi_doi'] ?? '') ?>">
-                                                                </label>
-                                                        </div>
-                                                <?php endforeach; ?>
+                                                <div class="field" style="grid-column: span 3;">
+                                                        <label>Số hiệu</label>
+                                                        <input name="so_hieu" required value="<?= htmlspecialchars($edit_row['so_hieu'] ?? '') ?>" placeholder="VN123">
+                                                </div>
+                                                <div class="field" style="grid-column: span 3;">
+                                                        <label>Tuyến</label>
+                                                        <select name="tuyen_bay_id" required>
+                                                                <?php foreach ($routes as $r): ?>
+                                                                        <option value="<?= $r['id'] ?>" <?= isset($edit_row['tuyen_bay_id']) && (int)$edit_row['tuyen_bay_id'] === $r['id'] ? 'selected' : '' ?>>
+                                                                                <?= $r['ma_tuyen'] ?> (<?= $r['di'] ?>→<?= $r['den'] ?>)
+                                                                        </option>
+                                                                <?php endforeach; ?>
+                                                        </select>
+                                                        <div class="muted">Nếu thiếu tuyến, hãy tạo trong phần quản trị tuyến_bay.</div>
+                                                </div>
+                                                <div class="field" style="grid-column: span 3;">
+                                                        <label>Tàu bay (tuỳ chọn)</label>
+                                                        <select name="tau_bay_id">
+                                                                <option value="">-- Chưa gán --</option>
+                                                                <?php foreach ($planes as $a): ?>
+                                                                        <option value="<?= $a['id'] ?>" <?= isset($edit_row['tau_bay_id']) && (string)$edit_row['tau_bay_id'] === (string)$a['id'] ? 'selected' : '' ?>>
+                                                                                <?= $a['so_dang_ba'] ?: ('ID ' . $a['id']) ?> — <?= $a['dong_may_bay'] ?>
+                                                                        </option>
+                                                                <?php endforeach; ?>
+                                                        </select>
+                                                </div>
+                                                <div class="field" style="grid-column: span 3;">
+                                                        <label>Trạng thái</label>
+                                                        <select name="trang_thai">
+                                                                <?php foreach (['LEN_KE_HOACH', 'HUY', 'TRE', 'DA_CAT_CANH', 'DA_HA_CANH'] as $s): ?>
+                                                                        <option <?= $edit_row && $edit_row['trang_thai'] === $s ? 'selected' : '' ?>><?= $s ?></option>
+                                                                <?php endforeach; ?>
+                                                        </select>
+                                                </div>
+                                                <div class="field" style="grid-column: span 3;">
+                                                        <label>Giờ đi</label>
+                                                        <input name="gio_di" type="datetime-local" required
+                                                                value="<?= isset($edit_row['gio_di']) ? date('Y-m-d\TH:i', strtotime($edit_row['gio_di'])) : '' ?>">
+                                                </div>
+                                                <div class="field" style="grid-column: span 3;">
+                                                        <label>Giờ đến</label>
+                                                        <input name="gio_den" type="datetime-local" required
+                                                                value="<?= isset($edit_row['gio_den']) ? date('Y-m-d\TH:i', strtotime($edit_row['gio_den'])) : '' ?>">
+                                                </div>
+                                                <div class="field" style="grid-column: span 2;">
+                                                        <label>Tiền tệ</label>
+                                                        <select name="tien_te">
+                                                                <?php foreach (['VND', 'USD', 'EUR'] as $ccy): ?>
+                                                                        <option <?= $edit_row && $edit_row['tien_te'] === $ccy ? 'selected' : '' ?>><?= $ccy ?></option>
+                                                                <?php endforeach; ?>
+                                                        </select>
+                                                </div>
                                         </div>
-                                </div>
 
-                                <div class="submit-row">
-                                        <button class="btn luu" type="submit" name="action" value="<?= $edit_row ? 'update' : 'create' ?>">Lưu</button>
-                                        <?php if ($edit_row): ?>
-                                                <a class="btn outline" href="index.php?p=flights">Hủy</a>
-                                        <?php endif; ?>
-                                </div>
-                        </form>
-                 </div>
-              <?php else: ?>
-            <div class="card">
-             <h3>Quản lý chuyến bay</h3>
-              <div class="muted">Bạn không có quyền tạo hoặc sửa chuyến bay. Nếu cần, vui lòng liên hệ ADMIN.</div>
-               </div>
+                                        <!-- Giá theo hạng ghế -->
+                                        <div class="card" style="margin-top:12px">
+                                                <h4>Giá & chỗ theo hạng ghế</h4>
+                                                <div class="grid">
+                                                        <?php foreach ($classes as $c):
+                                                                $ex = $edit_row ? ($fares[$c['id']] ?? null) : null; ?>
+                                                                <div class="field" style="grid-column: span 4;">
+                                                                        <div><b><?= $c['ma'] ?> - <?= $c['ten'] ?></b></div>
+
+                                                                        <label>Giá cơ bản
+                                                                                <input class="gia-co-ban"
+                                                                                        data-hang="<?= $c['id'] ?>"
+                                                                                        name="fare[<?= $c['id'] ?>][gia]"
+                                                                                        type="number" step="0.01" min="0"
+                                                                                        value="<?= htmlspecialchars($ex['gia_co_ban'] ?? '') ?>">
+                                                                        </label>
+
+                                                                        <label>Số ghế còn
+                                                                                <input name="fare[<?= $c['id'] ?>][so_ghe]" type="number" min="0"
+                                                                                        value="<?= htmlspecialchars($ex['so_ghe_con'] ?? '') ?>">
+                                                                        </label>
+
+                                                                        <label>Hành lý (kg)
+                                                                                <input class="hanh-ly" name="fare[<?= $c['id'] ?>][kg]" type="number" min="0"
+                                                                                        value="<?= htmlspecialchars($ex['hanh_ly_kg'] ?? '') ?>">
+                                                                        </label>
+
+                                                                        <label>Được hoàn?
+                                                                                <input class="duoc-hoan" name="fare[<?= $c['id'] ?>][hoan]" type="checkbox"
+                                                                                        <?= !empty($ex) && (int)$ex['duoc_hoan'] === 1 ? 'checked' : '' ?>>
+                                                                        </label>
+
+                                                                        <label>Phí đổi
+                                                                                <input class="phi-doi" name="fare[<?= $c['id'] ?>][phi_doi]" type="number" step="0.01" min="0"
+                                                                                        value="<?= htmlspecialchars($ex['phi_doi'] ?? '') ?>">
+                                                                        </label>
+                                                                </div>
+                                                        <?php endforeach; ?>
+                                                </div>
+                                        </div>
+
+                                        <div class="submit-row">
+                                                <button class="btn luu" type="submit" name="action" value="<?= $edit_row ? 'update' : 'create' ?>">Lưu</button>
+                                                <?php if ($edit_row): ?>
+                                                        <a class="btn outline" href="index.php?p=flights">Hủy</a>
+                                                <?php endif; ?>
+                                        </div>
+                                </form>
+                        </div>
+                <?php else: ?>
+                        <div class="card">
+                                <h3>Quản lý chuyến bay</h3>
+                                <div class="muted">Bạn không có quyền tạo hoặc sửa chuyến bay. Nếu cần, vui lòng liên hệ ADMIN.</div>
+                        </div>
                 <?php endif; ?>
 
                 <!-- Bảng danh sách -->
@@ -249,15 +252,15 @@ document.addEventListener('DOMContentLoaded', () => {
                                                                 <button class="btn" name="action" value="delete" type="submit">Xóa</button>
                                                         </form> -->
                                                         <?php if (!empty($isAdmin)): ?>
-                                                    <a href="index.php?p=flights&edit=<?= (int)$f['id'] ?>" class="btn outline">Sửa</a>
-                                                    <form method="post" style="display:inline" onsubmit="return confirm('Xóa chuyến bay?')">
-                                                    <input type="hidden" name="_csrf" value="<?= htmlspecialchars(csrf_token()) ?>">
-                                                    <input type="hidden" name="id" value="<?= (int)$f['id'] ?>">
-                                                   <button class="btn danger" name="action" value="delete">Xóa</button>
-                                                     </form>
-                                             <?php else: ?>
-                                          <span class="small-muted">Không có quyền</span>
-                                            <?php endif; ?>
+                                                                <a href="index.php?p=flights&edit=<?= (int)$f['id'] ?>" class="btn outline">Sửa</a>
+                                                                <form method="post" style="display:inline" onsubmit="return confirm('Xóa chuyến bay?')">
+                                                                        <input type="hidden" name="_csrf" value="<?= htmlspecialchars(csrf_token()) ?>">
+                                                                        <input type="hidden" name="id" value="<?= (int)$f['id'] ?>">
+                                                                        <button class="btn danger" name="action" value="delete">Xóa</button>
+                                                                </form>
+                                                        <?php else: ?>
+                                                                <span class="small-muted">Không có quyền</span>
+                                                        <?php endif; ?>
 
                                                 </td>
                                         </tr>
@@ -267,20 +270,59 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <br>
                 <div class="page-actions">
-        <?php if (!empty($isAdmin)): ?>
-            <a class="btn ghost" href="index.php?p=admin">Quay lại trang Admin</a>
-        <?php elseif (!empty($isStaff)): ?>
-            <a class="btn ghost" href="index.php?p=staff">Quay lại trang Nhân viên</a>
-        <?php endif; ?>
-    </div>
+                        <?php if (!empty($isAdmin)): ?>
+                                <a class="btn ghost" href="index.php?p=admin">Quay lại trang Admin</a>
+                        <?php elseif (!empty($isStaff)): ?>
+                                <a class="btn ghost" href="index.php?p=staff">Quay lại trang Nhân viên</a>
+                        <?php endif; ?>
+                </div>
         </main>
         <br>
         <footer>
                 <div class="container">© <span id="y"></span> VNAir Ticket</div>
         </footer>
         <script>
-                document.getElementById('y').textContent = new Date().getFullYear();
+                document.addEventListener('DOMContentLoaded', () => {
+                        const routeSelect = document.querySelector('select[name="tuyen_bay_id"]');
+                        const fareInputs = document.querySelectorAll('.gia-co-ban[data-hang]');
+
+                        function loadFareDefaults(routeId) {
+                                fareInputs.forEach(input => {
+                                        const hangId = input.dataset.hang;
+                                        fetch(`api_get_fare.php?tuyen_bay_id=${routeId}&hang_ghe_id=${hangId}`)
+                                                .then(res => res.json())
+                                                .then(json => {
+                                                        if (json.success && json.data) {
+                                                                input.value = json.data.gia_co_ban ?? '';
+
+                                                                const field = input.closest('.field') || input.parentElement;
+                                                                const hanhLy = field.querySelector('.hanh-ly');
+                                                                const phiDoi = field.querySelector('.phi-doi');
+                                                                const duocHoan = field.querySelector('.duoc-hoan');
+
+                                                                if (hanhLy) hanhLy.value = json.data.hanh_ly_kg ?? 0;
+                                                                if (phiDoi) phiDoi.value = json.data.phi_doi ?? 0;
+                                                                if (duocHoan) duocHoan.checked = !!json.data.duoc_hoan;
+                                                        }
+                                                })
+                                                .catch(err => console.error('Lỗi tải giá:', err));
+                                });
+                        }
+
+                        if (routeSelect) {
+                                routeSelect.addEventListener('change', () => {
+                                        const routeId = routeSelect.value;
+                                        if (routeId) loadFareDefaults(routeId);
+                                });
+
+                                // ✅ Nếu đang sửa chuyến bay (đã có tuyến), tự load giá mặc định ban đầu
+                                if (routeSelect.value) {
+                                        loadFareDefaults(routeSelect.value);
+                                }
+                        }
+                });
         </script>
+
 </body>
 
 </html>

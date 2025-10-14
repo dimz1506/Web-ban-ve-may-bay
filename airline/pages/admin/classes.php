@@ -31,11 +31,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     throw new RuntimeException("Thieu du lieu.");
                            }
                            if ($action === 'create') {
-                                    $pdo->prepare("INSERT INTO hang_ghe(ma, ten) VALUES (?,?)")->execute([$ma, $ten]);
-                                    flash_ok("Da them hang ghe.");
+                                    $pdo->prepare("
+                                        INSERT INTO hang_ghe (ma, ten, mo_ta, tien_ich, mau_sac, thu_tu)
+                                        VALUES (?, ?, ?, ?, ?, ?)
+                                    ")->execute([$ma, $ten, $mo_ta, $tien_ich, $mau_sac, $thu_tu]);
+                                    flash_ok("Đã thêm hạng ghế mới.");
                            } else {
-                                    $pdo->prepare("UPDATE hang_ghe SET ma=? , ten=? WHERE id=?")->execute([$ma, $ten, $id]);
-                                    flash_ok("Da cap nhat hang ghe.");
+                                    $pdo->prepare("
+                                        UPDATE hang_ghe 
+                                        SET ma=?, ten=?, mo_ta=?, tien_ich=?, mau_sac=?, thu_tu=?
+                                        WHERE id=?
+                                    ")->execute([$ma, $ten, $mo_ta, $tien_ich, $mau_sac, $thu_tu, $id]);
+                                    flash_ok("Đã cập nhật hạng ghế.");
                            }
                   } elseif ($action === 'delete') {
                            $id = (int)($_POST['id'] ?? 0);
