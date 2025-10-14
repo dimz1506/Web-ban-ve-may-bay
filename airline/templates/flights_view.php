@@ -29,16 +29,7 @@
 
          <div class="p">
     <h2>Quản lý chuyến bay</h2>
-    <div class="page-actions">
-        <?php if (!empty($isAdmin)): ?>
-            <a class="btn ghost" href="index.php?p=admin">Quay lại trang Admin</a>
-        <?php elseif (!empty($isStaff)): ?>
-            <a class="btn ghost" href="index.php?p=staff">Quay lại trang Nhân viên</a>
-        <?php endif; ?>
-    </div>
 </div>
-
-        <br>
                 <!-- Bộ lọc -->
                 <form class="card" method="get" action="index.php">
                         <input type="hidden" name="p" value="flights">
@@ -235,8 +226,16 @@
                         </table>
                         <p class="muted">Hiển thị tối đa 300 bản ghi theo bộ lọc.</p>
                 </div>
+                <br>
+                <div class="page-actions">
+        <?php if (!empty($isAdmin)): ?>
+            <a class="btn ghost" href="index.php?p=admin">Quay lại trang Admin</a>
+        <?php elseif (!empty($isStaff)): ?>
+            <a class="btn ghost" href="index.php?p=staff">Quay lại trang Nhân viên</a>
+        <?php endif; ?>
+    </div>
         </main>
-
+        <br>
         <footer>
                 <div class="container">© <span id="y"></span> VNAir Ticket</div>
         </footer>

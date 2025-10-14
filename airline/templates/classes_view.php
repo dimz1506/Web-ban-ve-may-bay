@@ -13,9 +13,6 @@
          <main class="container">
                    <div class="p">
                  <h2>Quản lý hạng ghế</h2>
-                 <div class="page-actions">
-                   <a class="btn" href="index.php?p=admin">Quay lại</a>      
-                 </div>
                  </div>
                  <br>
                   <?php if ($m = flash_get('ok')) : ?><div class="ok"><?= $m ?></div><?php endif; ?>
@@ -101,6 +98,9 @@
                                     <?php endforeach; ?>
                            </table>
                   </div>
+                  <div class="page-actions">
+                   <a class="btn" href="index.php?p=admin">Quay lại</a>      
+                 </div>
          </main>
            <footer>
                 <div class="container">© 2025<span id="y"></span> VNAir Ticket</div>
