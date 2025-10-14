@@ -25,6 +25,9 @@ if ($p !== null && $p !== 'home') {
     'classes'      => 'admin/classes.php',
     'reports'      => 'admin/reports.php',
     'bookings'     => 'admin/bookings.php',
+    'router'      => 'admin/router.php',
+    'sanbay'    => 'admin/sanbay.php',
+    'fare'        => 'admin/fare.php',
     
 
     'search_results' => 'booking/search_results.php',
