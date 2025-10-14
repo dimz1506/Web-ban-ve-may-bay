@@ -3,6 +3,8 @@
 // Router + Trang chủ (landing). Khi có tham số ?p=... sẽ nạp trang trong /pages.
 require_once dirname(__DIR__) . '/config.php';
 
+
+
 $p = $_GET['p'] ?? null;
 
 // Nếu có tham số p (và không phải 'home'), dùng router trang cũ
@@ -16,12 +18,15 @@ if ($p !== null && $p !== 'home') {
     'users'        => 'admin/user.php',
     'staff'        => 'staff/staff_dashboard.php',
     'customer'     => 'customer/customer_dashboard.php',
+    'contact'      => 'customer/contact.php',
+    'profile'      => 'customer/profile.php',
     'flights'      => 'admin/flights.php',
     'promotions'   => 'admin/promotions.php',
     'classes'      => 'admin/classes.php',
     'reports'      => 'admin/reports.php',
     'bookings'     => 'admin/bookings.php',
     
+
     'search_results' => 'booking/search_results.php',
     'select_seat' => 'booking/select_seat.php',
     'add_passengers' => 'booking/add_passengers.php',
@@ -81,7 +86,8 @@ if ($p !== null && $p !== 'home') {
           <button class="tab" type="button" id="tab-round">Khứ hồi</button>
         </div>
 
-        <form id="searchForm" autocomplete="off">
+        <form id="searchForm" action="index.php" method="get" autocomplete="off">
+          <input type="hidden" name="p" value="search_results">
           <div class="err" id="errBox" role="alert"></div>
 
           <div class="grid">

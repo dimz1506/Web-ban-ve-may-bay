@@ -10,15 +10,19 @@
 </head>
 
 <body>
-    <?php include __DIR__ . '/../includes/header.php'; ?>
+<header class="topbar">
+  <div class="container nav">
+    <div class="brand">
+      <div class="logo">✈</div>
+      <div>VNAir Ticket</div>
+    </div>
+  </div>
+</header>
+
     <main class="container">
         <div class="page-head">
       <div>
         <h2>Quản lý khuyến mãi</h2>
-      </div>
-      <div class="page-actions">
-        <a class="btn " href="index.php?p=admin">Quay lại</a>
-
       </div>
     </div>
     <br>
@@ -193,7 +197,9 @@
                 </table>
             </div>
         </div>
-
+       <div class="page-actions">
+        <a class="btn " href="index.php?p=admin">Quay lại</a>
+      </div>
          
     </main>
         <footer>

@@ -91,9 +91,6 @@ $user = current_user();
   <header class="topbar">
     <div class="container nav" role="navigation" aria-label="Main navigation">
       <div class="brand"><div class="logo" aria-hidden="true">✈</div><div>VNAir Ticket</div></div>
-      <div class="nav-cta">
-        <a class="btn outline" href="index.php?p=logout">Đăng xuất</a>
-      </div>
     </div>
   </header>
 
@@ -117,6 +114,8 @@ $user = current_user();
            <a href="index.php?p=bookings">Quản lý đơn đặt</a>
           <a href="index.php?p=reports">Báo cáo</a>
           <a href="index.php?p=settings">Cài đặt</a>
+
+          <a style="color: red;" class="btn outline" href="index.php?p=logout">Đăng xuất</a>
           
         </nav>
 
@@ -135,10 +134,6 @@ $user = current_user();
       <section class="main">
         <div class="page-title">
           <h1>Bảng điều khiển</h1>
-          <div class="controls">
-            <a class="btn outline" href="index.php?p=reports">Xuất báo cáo</a>
-            <a class="btn" href="index.php?p=users">Quản lý người dùng</a>
-          </div>
         </div>
 
         <!-- Stats -->

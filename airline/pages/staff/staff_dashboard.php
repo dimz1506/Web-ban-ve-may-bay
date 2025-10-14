@@ -40,9 +40,6 @@ try {
   <main class="container">
     <header style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px">
       <div class="brand"><div class="logo" aria-hidden="true">✈</div><div>VNAir Ticket</div></div>
-      <div class="actions">
-        <a class="btn ghost" href="index.php?p=logout">Đăng xuất</a>
-      </div>
     </header>
 
     <div class="grid">
@@ -56,9 +53,6 @@ try {
                 <div style="font-weight:800"><?= htmlspecialchars($user['ho_ten'] ?? 'Nhân viên') ?></div>
                 <div class="muted small"><?= htmlspecialchars($user['email'] ?? '') ?></div>
               </div>
-            </div>
-            <div style="text-align:right">
-              <a class="btn" href="index.php?p=bookings">Tra cứu vé</a>
             </div>
           </div>
 
@@ -118,8 +112,9 @@ try {
           <div class="quick-links">
             <a href="index.php?p=bookings">Tra cứu / Lọc vé</a>
             <a href="index.php?p=flights">Danh sách chuyến bay</a>
-            <a href="index.php?p=reports">Báo cáo chung</a>
-            <a href="index.php?p=contact">Quy trình & Hướng dẫn</a>
+            <a href="index.php?p=reports">Báo cáo</a>
+            <a href="index.php?p=support">Thông báo</a>
+            <a style="color: red;" href="index.php?p=logout">Đăng xuất</a>
           </div>
         </div>
 

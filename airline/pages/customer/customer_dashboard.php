@@ -1,17 +1,24 @@
 <?php
 // pages/customer_dashboard.php — Trang riêng cho Khách hàng (giao diện giống trang chủ)
-// Mục tiêu: giữ nguyên chức năng, làm sạch output (htmlspecialchars) và loại bớt phần comment thừa.
+// Giữ require_login để bảo đảm chỉ khách hàng đã đăng nhập mới vào được.
 if (!function_exists('db')) { require_once dirname(__DIR__).'/config.php'; }
 require_login(['CUSTOMER']);
 
-// lấy user hiện tại an toàn
+// Lấy user hiện tại an toàn
 $user = null;
+$displayName = 'Khách';
 if (function_exists('me')) {
-    $user = me();
-} elseif (function_exists('current_user')) {
-    $user = current_user();
+    try {
+        $u = me();
+        if (!empty($u) && is_array($u)) {
+            $user = $u;
+            $displayName = htmlspecialchars($user['ho_ten'] ?? $user['email'] ?? 'Khách', ENT_QUOTES, 'UTF-8');
+        }
+    } catch (Throwable $e) {
+        // nếu me() lỗi thì giữ $displayName mặc định
+        $user = null;
+    }
 }
-$userName = htmlspecialchars($user['ho_ten'] ?? 'Khách', ENT_QUOTES, 'UTF-8');
 ?>
 <!doctype html>
 <html lang="vi">
@@ -20,26 +27,33 @@ $userName = htmlspecialchars($user['ho_ten'] ?? 'Khách', ENT_QUOTES, 'UTF-8');
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Trang khách hàng | VNAir Ticket</title>
   <link rel="stylesheet" href="assets/home.css">
+  <link rel="stylesheet" href="assets/customer.css">
 </head>
 <body>
   <header class="topbar">
-    <div class="container nav">
-      <div class="brand">
-        <div class="logo">✈</div>
-        <div>VNAir Ticket</div>
-      </div>
+  <div class="container nav">
+    <div class="brand">
+      <div class="logo">✈</div>
+      <div>VNAir Ticket</div>
+    </div>
 
-      <nav>
-        <a href="index.php?p=customer">Trang của tôi</a>
-        <a href="index.php?p=my_tickets">Vé của tôi</a>
-      </nav>
+    <div class="nav-cta">
+      <div class="muted" style="margin-right:10px">Xin chào, <strong><?= htmlspecialchars($displayName) ?></strong></div>
 
-      <div class="nav-cta">
-        <div class="muted" style="margin-right:10px">Xin chào, <strong><?= $userName ?></strong></div>
-        <a class="btn outline" href="index.php?p=logout">Đăng xuất</a>
+      <!-- Menu 3 dấu chấm -->
+      <div class="menu-wrapper">
+        <button class="menu-btn" aria-label="Mở menu">⋯</button>
+        <div class="menu-dropdown">
+          <a href="index.php?p=profile">Tài khoản cá nhân</a>
+          <a href="index.php?p=my_tickets">Vé đã đặt</a>
+          <hr>
+          <a href="index.php" class="logout">Đăng xuất</a>
+        </div>
       </div>
     </div>
-  </header>
+  </div>
+</header>
+
 
   <!-- Hero + Search (giống trang chủ) -->
   <div class="hero">
@@ -56,8 +70,8 @@ $userName = htmlspecialchars($user['ho_ten'] ?? 'Khách', ENT_QUOTES, 'UTF-8');
           <button class="tab" type="button" id="tab-round">Khứ hồi</button>
         </div>
 
-        <form id="searchForm" autocomplete="off">
-          <div class="err" id="errBox" role="alert"></div>
+        <form id="searchForm" method="get" action="index.php?p=search_results" autocomplete="off">
+          <div class="err" id="errBox" role="alert" style="display:none"></div>
 
           <div class="grid">
             <div class="field row" style="grid-column: span 6;">
@@ -81,7 +95,7 @@ $userName = htmlspecialchars($user['ho_ten'] ?? 'Khách', ENT_QUOTES, 'UTF-8');
 
             <div class="field" style="grid-column: span 6;">
               <label for="pax">Số khách</label>
-              <input id="pax" name="pax" type="number" min="1" value="1">
+              <input id="pax" name="pax" type="number" min="1" value="1" required>
             </div>
             <div class="field" style="grid-column: span 6;">
               <label for="cabin">Hạng ghế</label>
@@ -92,8 +106,12 @@ $userName = htmlspecialchars($user['ho_ten'] ?? 'Khách', ENT_QUOTES, 'UTF-8');
               </select>
             </div>
           </div>
-          <div class="submit-row"><button class="btn" type="submit">Tìm chuyến</button></div>
+
+          <div class="submit-row">
+            <button class="btn" type="submit">Tìm chuyến</button>
+          </div>
         </form>
+
         <datalist id="airports"></datalist>
       </div>
     </div>
@@ -132,7 +150,7 @@ $userName = htmlspecialchars($user['ho_ten'] ?? 'Khách', ENT_QUOTES, 'UTF-8');
 
   <footer id="lien-he">
     <div class="container">
-      <div>© <span id="y"></span> VNAir Ticket — Khu khách hàng.</div>
+      <div>© <span id="y"></span> VNAir Ticket.</div>
     </div>
   </footer>
 
@@ -175,7 +193,7 @@ $userName = htmlspecialchars($user['ho_ten'] ?? 'Khách', ENT_QUOTES, 'UTF-8');
       });
     }
 
-    // basic client validation on submit (keeps behavior)
+    // basic client validation on submit
     const searchForm = document.getElementById('searchForm');
     if (searchForm) {
       searchForm.addEventListener('submit', function(e){
@@ -185,12 +203,30 @@ $userName = htmlspecialchars($user['ho_ten'] ?? 'Khách', ENT_QUOTES, 'UTF-8');
         if (!from || !to) {
           e.preventDefault();
           alert('Vui lòng nhập cả điểm đi và điểm đến.');
+          return;
         } else if (!depart) {
           e.preventDefault();
           alert('Vui lòng chọn ngày đi.');
+          return;
         }
+        // submit — form dùng GET để chuyển sang trang kết quả (search_results)
       });
     }
   </script>
+  <script>
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.menu-btn');
+    const menu = document.querySelector('.menu-dropdown');
+    if (btn) {
+      menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+      return;
+    }
+    // Click ra ngoài thì đóng menu
+    if (!e.target.closest('.menu-wrapper')) {
+      menu.style.display = 'none';
+    }
+  });
+</script>
+
 </body>
 </html>
