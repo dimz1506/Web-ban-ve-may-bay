@@ -22,21 +22,14 @@ if ($p !== null && $p !== 'home') {
     'profile'      => 'customer/profile.php',
     'flights'      => 'admin/flights.php',
     'promotions'   => 'admin/promotions.php',
-    'classes'      => 'admin/classes.php',
-    'reports'      => 'admin/reports.php',
-    'bookings'     => 'admin/bookings.php',
-    'router'      => 'admin/router.php',
-    'sanbay'    => 'admin/sanbay.php',
-    'fare'        => 'admin/fare.php',
-    
-
-    'search_results' => 'booking/search_results.php',
-    'select_seat' => 'booking/select_seat.php',
-    'add_passengers' => 'booking/add_passengers.php',
-    'review_checkout' => 'booking/review_checkout.php',
-    'my_bookings' => 'booking/my_bookings.php',
-    'my_tickets' => 'booking/my_tickets.php',
-    'edit_ticket' => 'booking/edit_ticket.php',
+    // Customer pages
+    'profile'      => 'customer/profile.php',
+    'payment'      => 'customer/payment.php',
+    'invoice'      => 'customer/invoice.php',
+    'contact'      => 'customer/contact.php',
+    'notifications'=> 'customer/notifications.php',
+    'book_search'  => 'customer/book_search.php',
+    'my_tickets'   => 'customer/my_tickets.php',
   ];
   if (!isset($map[$p])) {
     http_response_code(404);
