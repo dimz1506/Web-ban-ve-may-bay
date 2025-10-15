@@ -1,46 +1,24 @@
-<!-- <?php
-// pages/customer_dashboard.php — Trang riêng cho Khách hàng
-if (!function_exists('db')) { require_once dirname(__DIR__).'/config.php'; }
-require_login(['CUSTOMER']);
-?>
-<!doctype html>
-<html lang="vi">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Trang khách hàng | VNAir Ticket</title>
-  <link rel="stylesheet" href="assets/home.css">
-  <style>.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin:16px 0}</style>
-</head>
-<body>
-<header class="topbar">
-  <div class="container nav">
-    <div class="brand"><div class="logo">✈</div><div>VNAir Ticket</div></div>
-    <nav>
-      <strong>Khách hàng</strong>
-    </nav>
-    <div class="nav-cta">
-      <a class="btn outline" href="index.php?p=logout">Đăng xuất</a>
-    </div>
-  </div>
-</header>
-<main class="container">
-  <h2>Xin chào!</h2>
-  <div class="card">
-    <p>Đây là khu vực dành cho <b>Khách hàng</b>. Bạn có thể:</p>
-  </div>
-</main>
-<footer><div class="container">© <span id="y"></span> VNAir Ticket</div></footer>
-<script>document.getElementById('y').textContent = new Date().getFullYear();</script>
-</body>
-</html> -->
-
 <?php
 // pages/customer_dashboard.php — Trang riêng cho Khách hàng (giao diện giống trang chủ)
+// Giữ require_login để bảo đảm chỉ khách hàng đã đăng nhập mới vào được.
 if (!function_exists('db')) { require_once dirname(__DIR__).'/config.php'; }
 require_login(['CUSTOMER']);
 
-$userName = htmlspecialchars(me()['ho_ten'] ?? 'Khách');
+// Lấy user hiện tại an toàn
+$user = null;
+$displayName = 'Khách';
+if (function_exists('me')) {
+    try {
+        $u = me();
+        if (!empty($u) && is_array($u)) {
+            $user = $u;
+            $displayName = htmlspecialchars($user['ho_ten'] ?? $user['email'] ?? 'Khách', ENT_QUOTES, 'UTF-8');
+        }
+    } catch (Throwable $e) {
+        // nếu me() lỗi thì giữ $displayName mặc định
+        $user = null;
+    }
+}
 ?>
 <!doctype html>
 <html lang="vi">
@@ -49,27 +27,33 @@ $userName = htmlspecialchars(me()['ho_ten'] ?? 'Khách');
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Trang khách hàng | VNAir Ticket</title>
   <link rel="stylesheet" href="assets/home.css">
+  <link rel="stylesheet" href="assets/customer.css">
 </head>
 <body>
   <header class="topbar">
-    <div class="container nav">
-      <div class="brand">
-        <div class="logo">✈</div>
-        <div>VNAir Ticket</div>
-      </div>
+  <div class="container nav">
+    <div class="brand">
+      <div class="logo">✈</div>
+      <div>VNAir Ticket</div>
+    </div>
 
-      <nav>
-        <a href="index.php?p=customer">Trang của tôi</a>
-        <a href="index.php?p=book_search">Tìm chuyến</a>
-        <a href="index.php?p=my_tickets">Vé của tôi</a>
-      </nav>
+    <div class="nav-cta">
+      <div class="muted" style="margin-right:10px">Xin chào, <strong><?= htmlspecialchars($displayName) ?></strong></div>
 
-      <div class="nav-cta">
-        <div class="muted" style="margin-right:10px">Xin chào, <strong><?= $userName ?></strong></div>
-        <a class="btn outline" href="index.php?p=logout">Đăng xuất</a>
+      <!-- Menu 3 dấu chấm -->
+      <div class="menu-wrapper">
+        <button class="menu-btn" aria-label="Mở menu">⋯</button>
+        <div class="menu-dropdown">
+          <a href="index.php?p=profile">Tài khoản cá nhân</a>
+          <a href="index.php?p=my_tickets">Vé đã đặt</a>
+          <hr>
+          <a href="index.php" class="logout">Đăng xuất</a>
+        </div>
       </div>
     </div>
-  </header>
+  </div>
+</header>
+
 
   <!-- Hero + Search (giống trang chủ) -->
   <div class="hero">
@@ -86,8 +70,8 @@ $userName = htmlspecialchars(me()['ho_ten'] ?? 'Khách');
           <button class="tab" type="button" id="tab-round">Khứ hồi</button>
         </div>
 
-        <form id="searchForm" autocomplete="off">
-          <div class="err" id="errBox" role="alert"></div>
+        <form id="searchForm" method="get" action="index.php?p=search_results" autocomplete="off">
+          <div class="err" id="errBox" role="alert" style="display:none"></div>
 
           <div class="grid">
             <div class="field row" style="grid-column: span 6;">
@@ -111,7 +95,7 @@ $userName = htmlspecialchars(me()['ho_ten'] ?? 'Khách');
 
             <div class="field" style="grid-column: span 6;">
               <label for="pax">Số khách</label>
-              <input id="pax" name="pax" type="number" min="1" value="1">
+              <input id="pax" name="pax" type="number" min="1" value="1" required>
             </div>
             <div class="field" style="grid-column: span 6;">
               <label for="cabin">Hạng ghế</label>
@@ -122,9 +106,13 @@ $userName = htmlspecialchars(me()['ho_ten'] ?? 'Khách');
               </select>
             </div>
           </div>
-          <div class="submit-row"><button class="btn" type="submit">Tìm chuyến</button></div>
+
+          <div class="submit-row">
+            <button class="btn" type="submit">Tìm chuyến</button>
+          </div>
         </form>
-        <datalist id="airports"><!-- filled by JS --></datalist>
+
+        <datalist id="airports"></datalist>
       </div>
     </div>
   </div>
@@ -162,11 +150,83 @@ $userName = htmlspecialchars(me()['ho_ten'] ?? 'Khách');
 
   <footer id="lien-he">
     <div class="container">
-      <div>© <span id="y"></span> VNAir Ticket — Khu khách hàng.</div>
+      <div>© <span id="y"></span> VNAir Ticket.</div>
     </div>
   </footer>
 
   <script src="assets/home.js" defer></script>
-  <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
+  <script>
+    // footer year
+    document.getElementById('y').textContent = new Date().getFullYear();
+
+    // UI: toggle one-way / round-trip
+    const onewayBtn = document.getElementById('tab-oneway');
+    const roundBtn = document.getElementById('tab-round');
+    const returnWrap = document.getElementById('returnWrap');
+
+    function setRound(on) {
+      if (on) {
+        roundBtn.classList.add('active');
+        onewayBtn.classList.remove('active');
+        returnWrap.hidden = false;
+      } else {
+        onewayBtn.classList.add('active');
+        roundBtn.classList.remove('active');
+        returnWrap.hidden = true;
+      }
+    }
+    if (onewayBtn && roundBtn) {
+      onewayBtn.addEventListener('click', ()=> setRound(false));
+      roundBtn.addEventListener('click', ()=> setRound(true));
+    }
+
+    // swap from/to
+    const swapBtn = document.getElementById('swapBtn');
+    if (swapBtn) {
+      swapBtn.addEventListener('click', function(){
+        const a = document.getElementById('from');
+        const b = document.getElementById('to');
+        const tmp = a.value;
+        a.value = b.value;
+        b.value = tmp;
+        a.focus();
+      });
+    }
+
+    // basic client validation on submit
+    const searchForm = document.getElementById('searchForm');
+    if (searchForm) {
+      searchForm.addEventListener('submit', function(e){
+        const from = document.getElementById('from').value.trim();
+        const to = document.getElementById('to').value.trim();
+        const depart = document.getElementById('depart').value;
+        if (!from || !to) {
+          e.preventDefault();
+          alert('Vui lòng nhập cả điểm đi và điểm đến.');
+          return;
+        } else if (!depart) {
+          e.preventDefault();
+          alert('Vui lòng chọn ngày đi.');
+          return;
+        }
+        // submit — form dùng GET để chuyển sang trang kết quả (search_results)
+      });
+    }
+  </script>
+  <script>
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.menu-btn');
+    const menu = document.querySelector('.menu-dropdown');
+    if (btn) {
+      menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+      return;
+    }
+    // Click ra ngoài thì đóng menu
+    if (!e.target.closest('.menu-wrapper')) {
+      menu.style.display = 'none';
+    }
+  });
+</script>
+
 </body>
 </html>

@@ -187,5 +187,24 @@
 -- ('SGN-DAD','SGN','DAD',610);
 
 --xoa cot ten trong bang khuyen_mai
-ALTER TABLE khuyen_mai
-DROP COLUMN ten;
+-- ALTER TABLE khuyen_mai
+-- DROP COLUMN ten;
+
+-- ALTER TABLE hang_ghe 
+-- ADD COLUMN mo_ta VARCHAR(255) NULL,
+-- ADD COLUMN tien_ich VARCHAR(255) NULL,
+-- ADD COLUMN mau_sac VARCHAR(20) NULL,
+-- ADD COLUMN thu_tu INT DEFAULT 0;
+
+--CREATE TABLE gia_ve_mac_dinh (
+ -- id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+ -- tuyen_bay_id BIGINT UNSIGNED NOT NULL,
+ -- hang_ghe_id BIGINT UNSIGNED NOT NULL,
+ -- gia_co_ban DECIMAL(12,2) NOT NULL,
+ -- hanh_ly_kg INT UNSIGNED DEFAULT 0,
+ -- duoc_hoan TINYINT(1) NOT NULL DEFAULT 0,
+ -- phi_doi DECIMAL(12,2) DEFAULT 0.00,
+ -- UNIQUE (tuyen_bay_id, hang_ghe_id),
+ -- FOREIGN KEY (tuyen_bay_id) REFERENCES tuyen_bay(id) ON DELETE CASCADE,
+ -- FOREIGN KEY (hang_ghe_id) REFERENCES hang_ghe(id)
+--);
