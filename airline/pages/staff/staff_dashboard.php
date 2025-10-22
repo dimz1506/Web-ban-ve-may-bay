@@ -34,6 +34,7 @@ try {
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bảng điều khiển Nhân viên | VNAir Ticket</title>
   <link rel="stylesheet" href="assets/staff.css">
+
 </head>
 <body>
 
@@ -129,8 +130,9 @@ try {
       </aside>
     </div>
   </main>
-
-  <footer style="text-align: center;" class="small muted">© <span id="y"></span> VNAir Ticket</footer>
+<footer>
+    <div class="container">© <span id="y"></span> VNAir Ticket</div>
+  </footer>
 
   <script>
     document.getElementById('y').textContent = new Date().getFullYear();
