@@ -1,0 +1,172 @@
+body {
+         font-family: "Segoe UI", Roboto, sans-serif;
+         background: #f4f7fb;
+         color: #333;
+         margin: 0;
+       }
+       .layout {
+         display: flex;
+         min-height: 100vh;
+       }
+       /* Sidebar */
+       .sidebar {
+         width: 250px;
+         background: linear-gradient(180deg, #0b63d6, #1a73e8);
+         color: #fff;
+         padding: 24px 16px;
+         box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+         display: flex;
+         flex-direction: column;
+         justify-content: space-between;
+       }
+       .sidebar nav a {
+         display: block;
+         padding: 10px 12px;
+         color: #fff;
+         text-decoration: none;
+         border-radius: 6px;
+         margin-bottom: 6px;
+         font-weight: 500;
+         transition: background 0.2s;
+       }
+       .sidebar nav a:hover,
+       .sidebar nav a.active {
+         background: rgba(255,255,255,0.2);
+       }
+   
+       /* Main section */
+       .main {
+         flex: 1;
+         padding: 30px 40px;
+       }
+       .page-title {
+         display: flex;
+         align-items: center;
+         justify-content: space-between;
+         margin-bottom: 25px;
+       }
+       .page-title h1 {
+         font-size: 26px;
+         color: #1a237e;
+         margin: 0;
+       }
+   
+       /* Buttons */
+       .btn {
+         background: #1a73e8;
+         color: #fff;
+         border: none;
+         padding: 9px 16px;
+         border-radius: 6px;
+         font-weight: 600;
+         cursor: pointer;
+         transition: 0.2s;
+         text-decoration: none;
+         display: inline-block;
+       }
+       .btn:hover {
+         background: #1557b0;
+       }
+       .btn.outline {
+         background: #fff;
+         color: #1a73e8;
+         border: 1px solid #1a73e8;
+       }
+       .btn.outline:hover {
+         background: #e3f2fd;
+       }
+   
+       /* Cards */
+       .card {
+         background: #fff;
+         border-radius: 12px;
+         padding: 24px;
+         margin-bottom: 25px;
+         box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+       }
+       .card h3 {
+         margin-top: 0;
+         font-size: 20px;
+         color: #1a73e8;
+         border-left: 4px solid #1a73e8;
+         padding-left: 10px;
+         margin-bottom: 20px;
+       }
+   
+       /* Grid form */
+       .grid {
+         display: grid;
+         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+         gap: 16px;
+       }
+       .field {
+         display: flex;
+         flex-direction: column;
+       }
+       .field label {
+         font-weight: 600;
+         margin-bottom: 6px;
+       }
+       .field input, .field select {
+         border: 1px solid #ccc;
+         border-radius: 6px;
+         padding: 9px 10px;
+         font-size: 15px;
+         transition: border 0.2s;
+       }
+       .field input:focus, .field select:focus {
+         border-color: #1a73e8;
+         outline: none;
+         box-shadow: 0 0 3px rgba(26,115,232,0.4);
+       }
+   
+       /* Table */
+       table {
+         width: 100%;
+         border-collapse: collapse;
+         font-size: 15px;
+       }
+       th, td {
+         padding: 10px 12px;
+         border-bottom: 1px solid #e0e0e0;
+         text-align: left;
+       }
+       th {
+         background: #f3f6fa;
+         font-weight: 600;
+         color: #333;
+       }
+       tr:hover {
+         background: #f9fbff;
+       }
+   
+       /* Alerts */
+       .ok, .err {
+         margin-bottom: 20px;
+         padding: 10px 14px;
+         border-radius: 6px;
+         font-weight: 600;
+       }
+       .ok {
+         background: #e8f5e9;
+         color: #2e7d32;
+       }
+       .err {
+         background: #ffebee;
+         color: #c62828;
+       }
+   
+       /* Submit Row */
+       .submit-row {
+         display: flex;
+         justify-content: flex-end;
+         gap: 10px;
+         margin-top: 16px;
+       }
+   
+       @media (max-width: 900px) {
+         .layout { flex-direction: column; }
+         .sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; }
+         .main { padding: 20px; }
+         .page-title { flex-direction: column; align-items: flex-start; gap: 10px; }
+       }

@@ -152,4 +152,43 @@ document.addEventListener('DOMContentLoaded', () => {
   clearErr();
   // default trip type = oneway
   setTrip('one');
+
+
+
+  
+document.getElementById('searchForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  errBox.style.display = 'none';
+
+  const from = parseCode(fromEl.value.trim());
+  const to = parseCode(toEl.value.trim());
+  const date = depEl.value;
+  const retDate = retEl.value;
+  const cabin = document.getElementById('cabin').value;
+  const isRound = !retWrap.hidden; // nếu returnWrap đang hiển thị => khứ hồi
+
+  if (!from || !to) { return showErr('Vui lòng chọn sân bay đi/đến từ danh sách.'); }
+  if (from === to) { return showErr('Điểm đi và đến không được trùng nhau.'); }
+  if (!date) { return showErr('Vui lòng chọn ngày đi.'); }
+
+  // ✅ Nếu là khứ hồi thì chuyển sang search_roundtrip, ngược lại giữ nguyên
+  const page = isRound ? 'search_roundtrip' : 'search_results';
+
+  const qs = new URLSearchParams({
+    p: page,
+    from,
+    to,
+    depart: date,
+    ret: retDate,
+    cabin
+  });
+
+  window.location.href = './index.php?' + qs.toString();
 });
+
+function showErr(msg) {
+  errBox.textContent = msg;
+  errBox.style.display = 'block';
+}
+});
+
