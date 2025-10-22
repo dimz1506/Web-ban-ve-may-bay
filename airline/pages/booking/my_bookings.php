@@ -1,169 +1,210 @@
 <?php
-// pages/booking/my_bookings.php
-if (!function_exists('db')) { 
-    require_once dirname(__DIR__,2).'/config.php'; 
-}
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+// session_start();
+// if (!isset($_SESSION['user_id'])) {
+//   header('Location: index.php?p=login');
+//   exit;
+// }
+// ✅ pages/booking/my_bookings.php
+if (!function_exists('db')) require_once dirname(__DIR__,2).'/config.php';
+if (session_status() === PHP_SESSION_NONE) session_start();
 
-// Lấy PNR từ URL
-$pnr = $_GET['pnr'] ?? null;
-if (!$pnr) {
-    echo "<h2>Đặt chỗ của tôi</h2><p>Không tìm thấy PNR.</p>";
-    exit;
-}
+$flash_ok  = flash_get('ok') ?? null;
+$flash_err = flash_get('err') ?? null;
 
-// ===== XỬ LÝ HỦY VÉ =====
-if (isset($_POST['cancel_ticket_id'])) {
-    $ticket_id = (int)$_POST['cancel_ticket_id'];
-    $stCancel = db()->prepare("UPDATE ve SET trang_thai='HUY' WHERE id=?");
-    $stCancel->execute([$ticket_id]);
-    $_SESSION['flash'] = "Hủy vé thành công!";
-    header("Location: index.php?p=my_bookings&pnr=" . urlencode($pnr));
-    exit;
+/* -------------------- pick booking -------------------- */
+$pnr = trim($_GET['pnr'] ?? '');
+
+if ($pnr === '') {
+  $row = db()->query("SELECT pnr FROM dat_cho ORDER BY created_at DESC LIMIT 1")->fetch();
+  if ($row) $pnr = $row['pnr'];
 }
 
-// ===== LẤY THÔNG TIN ĐẶT CHỖ =====
-$st = db()->prepare(
-  "SELECT d.*, cb.so_hieu, cb.gio_di, cb.gio_den, 
-          s1.ten AS san_bay_di, s2.ten AS san_bay_den
-   FROM dat_cho d
-   JOIN ve v ON v.dat_cho_id = d.id
-   JOIN chuyen_bay cb ON v.chuyen_bay_id = cb.id
-   JOIN tuyen_bay tb ON cb.tuyen_bay_id = tb.id
-   JOIN san_bay s1 ON tb.di=s1.ma
-   JOIN san_bay s2 ON tb.den=s2.ma
-   WHERE d.pnr = ?
-   LIMIT 1"
-);
-$st->execute([$pnr]);
-$booking = $st->fetch();
+$notfound = false;
+$booking  = null;
+$tickets  = [];
 
-if (!$booking) {
-    echo "<h2>Đặt chỗ của tôi</h2><p>Không tìm thấy thông tin đặt chỗ.</p>";
-    exit;
+if ($pnr === '') {
+  $notfound = true;
+} else {
+  // Lấy thông tin đặt chỗ
+  $st = db()->prepare("SELECT id, pnr, created_at FROM dat_cho WHERE pnr=? LIMIT 1");
+  $st->execute([$pnr]);
+  $booking = $st->fetch();
+  $notfound = !$booking;
+
+  // Lấy danh sách vé
+  if (!$notfound) {
+    // ✅ kiểm tra có cột gioi_tinh trong DB không
+    $colCheck = db()->query("SHOW COLUMNS FROM hanh_khach LIKE 'gioi_tinh'")->fetch();
+    $hasGenderCol = !!$colCheck;
+
+    $sql = "
+      SELECT 
+        v.id AS ve_id, v.so_ve, v.trang_thai, v.so_ghe,
+        cb.id AS chuyen_id, cb.so_hieu, cb.gio_di, cb.gio_den,
+        s1.ten AS san_bay_di, s2.ten AS san_bay_den,
+        hg.ten AS ten_hang,
+        hk.ho_ten, hk.ngay_sinh, hk.so_giay_to
+        ".($hasGenderCol ? ", hk.gioi_tinh" : "")."
+      FROM ve v
+      JOIN chuyen_bay cb         ON cb.id = v.chuyen_bay_id
+      JOIN tuyen_bay tb          ON tb.id = cb.tuyen_bay_id
+      JOIN san_bay s1            ON s1.ma = tb.di
+      JOIN san_bay s2            ON s2.ma = tb.den
+      JOIN hang_ghe hg           ON hg.id = v.hang_ghe_id
+      JOIN hanh_khach hk         ON hk.id = v.hanh_khach_id
+      WHERE v.dat_cho_id = ?
+      ORDER BY hk.ho_ten, cb.gio_di ASC
+    ";
+    $st2 = db()->prepare($sql);
+    $st2->execute([$booking['id']]);
+    $tickets = $st2->fetchAll();
+  }
 }
 
-// ===== LẤY DANH SÁCH VÉ CÒN HIỆU LỰC =====
-$st2 = db()->prepare(
-  "SELECT v.*, h.ho_ten, h.gioi_tinh, h.ngay_sinh, h.so_giay_to
-   FROM ve v
-   JOIN hanh_khach h ON v.hanh_khach_id = h.id
-   WHERE v.dat_cho_id = ? AND v.trang_thai != 'HUY'"
-);
-$st2->execute([$booking['id']]);
-$passengers = $st2->fetchAll();
+function h($s){ return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
+function fmtDT($d){ return $d ? date('d/m/Y H:i', strtotime($d)) : ''; }
 ?>
 <!doctype html>
 <html lang="vi">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Đặt chỗ của tôi</title>
+  <title>Đặt chỗ của tôi <?= $pnr ? ('- PNR ' . h($pnr)) : '' ?></title>
   <link rel="stylesheet" href="assets/home.css">
   <style>
-    .booking-card {background:#fff;border:1px solid #ddd;border-radius:12px;padding:20px;margin:20px auto;max-width:800px;}
-    .booking-header {display:flex;justify-content:space-between;align-items:center;}
-    .booking-header h2{margin:0;}
-    .alert {padding:10px 15px;margin:10px 0;border-radius:8px;}
-    .alert.success {background:#dcfce7;color:#166534;}
-    .passenger {display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px dashed #ccc;padding:12px 0;}
-    .passenger-info {flex:1;}
-    .passenger-qr {margin-left:20px;}
-    .passenger-qr img {border:1px solid #ddd;border-radius:8px;padding:4px;background:#fff;}
-    .btn-row {margin-top:1rem;display:flex;gap:1rem;}
-    .btn {background:#1e40af;color:#fff;padding:.4rem 1rem;border-radius:8px;text-decoration:none;}
-    .btn:hover {background:#1e3a8a;}
-    .btn.outline {background:transparent;border:1px solid #1e40af;color:#1e40af;}
-    .btn.outline:hover {background:#e0e7ff;}
+    body{background:#f8fafc;font-family:'Segoe UI',sans-serif;margin:0;}
+    main.container{max-width:1000px;margin:24px auto;padding:22px;background:#fff;border-radius:18px;box-shadow:0 6px 16px rgba(0,0,0,.08);}
+    .header-line{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    .pnr-form{display:flex;gap:8px;align-items:center}
+    .pnr-form input{height:36px;padding:0 10px;border:1px solid #cbd5e1;border-radius:8px;min-width:220px}
+    .pnr-form button{height:36px}
+    .btn{background:#1e40af;color:#fff;padding:.45rem .9rem;border-radius:8px;border:none;text-decoration:none;cursor:pointer;}
+    .btn:hover{background:#1e3a8a;}
+    .btn.outline{background:transparent;border:1px solid #1e40af;color:#1e40af;}
+    .btn.outline:hover{background:#e0e7ff;}
+    .pill{padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600}
+    .alert{padding:10px 12px;border-radius:10px;margin:10px 0}
+    .alert.ok{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+    .alert.err{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+    .card{border:1px solid #e5e7eb;border-radius:14px;padding:14px 16px;margin:12px 0;background:#fff}
+    .status{display:inline-block;font-weight:700}
+    .status.CONFIRMED,.status.DA_XUAT{color:#166534;background:#dcfce7}
+    .status.PENDING{color:#92400e;background:#fef3c7}
+    .status.HUY{color:#991b1b;background:#fee2e2}
+    .muted{color:#64748b}
   </style>
 </head>
 <body>
 <header class="topbar">
   <div class="container nav">
     <div class="brand"><div class="logo">✈</div><div>VNAir Ticket</div></div>
-    <nav>
-      <a href="index.php">Trang chủ</a>
-      <a href="index.php?p=my_bookings">Vé đã đặt</a>
-    </nav>
   </div>
 </header>
 
 <main class="container">
-  <h2>Đặt chỗ của tôi</h2>
+  <div class="header-line">
+    <h2>Đặt chỗ của tôi</h2>
+    <form class="pnr-form" method="get" action="index.php">
+      <input type="hidden" name="p" value="my_bookings">
+      <input name="pnr" placeholder="Nhập PNR (ví dụ: ABC123)" value="<?=h($pnr)?>">
+      <button class="btn" type="submit">Tra cứu</button>
+      <a class="btn outline" href="index.php?p=my_tickets">Danh sách vé</a>
+    </form>
+  </div>
 
-  <?php if(isset($_SESSION['flash'])): ?>
-    <div class="alert success"><?= $_SESSION['flash']; unset($_SESSION['flash']); ?></div>
-  <?php endif; ?>
+  <?php if ($flash_ok): ?><div class="alert ok"><?=h($flash_ok)?></div><?php endif; ?>
+  <?php if ($flash_err): ?><div class="alert err"><?=h($flash_err)?></div><?php endif; ?>
 
-  <div class="booking-card">
-    <div class="booking-header">
-      <h2>PNR: <?=htmlspecialchars($pnr)?></h2>
-      <button onclick="window.print()" class="btn outline">🖨 In vé</button>
+  <?php if ($notfound): ?>
+    <div class="card">
+      <p>Không tìm thấy đặt chỗ phù hợp. Hãy nhập đúng <strong>PNR</strong> hoặc xem <a href="index.php?p=my_tickets">danh sách vé</a>.</p>
     </div>
-    <p>
-      <strong>Chuyến:</strong> <?=htmlspecialchars($booking['so_hieu'])?><br>
-      <strong>Hành trình:</strong> <?=htmlspecialchars($booking['san_bay_di'])?> → <?=htmlspecialchars($booking['san_bay_den'])?><br>
-      <strong>Giờ đi:</strong> <?=$booking['gio_di']?> — 
-      <strong>Giờ đến:</strong> <?=$booking['gio_den']?><br>
-      <strong>Trạng thái:</strong> <?=htmlspecialchars($booking['trang_thai'])?>
-    </p>
+  <?php else: ?>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+        <div>
+          <div><strong>PNR:</strong> <span class="pill" style="background:#eff6ff;color:#1e40af"><?=h($booking['pnr'])?></span></div>
+          <div class="muted">Ngày đặt: <?=fmtDT($booking['created_at'])?></div>
+  </div>
+      </div>
+    </div>
 
-    <p style="font-size:14px;color:#555;margin-bottom:1rem;">
-      * Khách hàng có thể <strong>hủy hoặc sửa thông tin vé</strong> 
-      trong vòng <strong>24–48 giờ sau khi đặt vé</strong>.  
-      Quá thời hạn, vui lòng liên hệ tổng đài hỗ trợ.
-    </p>
-
-    <?php if (empty($passengers)): ?>
-      <p style="color:#d00;font-weight:500;margin-top:1rem;">
-        Tất cả vé trong đặt chỗ này đã bị hủy. Vui lòng liên hệ tổng đài để được hỗ trợ đặt lại.
-      </p>
+    <?php if (!$tickets): ?>
+      <div class="card"><em>Chưa có vé nào trong đặt chỗ này.</em></div>
     <?php else: ?>
-      <h3>Danh sách hành khách</h3>
-      <?php foreach ($passengers as $i=>$p): ?>
-        <div class="passenger">
-          <div class="passenger-info">
-            <strong><?=$i+1?>. <?=htmlspecialchars($p['ho_ten'])?></strong><br>
-            Giới tính: <?=htmlspecialchars($p['gioi_tinh'])?><br>
-            Ngày sinh: <?=htmlspecialchars($p['ngay_sinh'])?><br>
-            CMND/Hộ chiếu: <?=htmlspecialchars($p['so_giay_to'])?><br>
-            Ghế: <?=htmlspecialchars($p['so_ghe'])?><br>
-            Số vé: <?=htmlspecialchars($p['so_ve'])?><br>
 
-            <div class="btn-row">
-              <?php
-                $dat_cho_time = strtotime($booking['created_at'] ?? ''); 
-                $now = time();
-                $hours_passed = ($now - $dat_cho_time)/3600;
-                if ($hours_passed <= 48): 
-              ?>
-                <a href="index.php?p=edit_ticket&id=<?=$p['id']?>" class="btn outline">✏ Sửa</a>
-                <form method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc muốn hủy vé này?')">
-                  <input type="hidden" name="cancel_ticket_id" value="<?=$p['id']?>">
-                  <button type="submit" class="btn outline">❌ Hủy</button>
-                </form>
-              <?php else: ?>
-                <span style="color:#999;font-size:13px;">(Hết hạn hủy/sửa)</span>
-              <?php endif; ?>
-            </div>
+    <?php
+      // ✅ Gom vé theo hành khách
+      $grouped = [];
+      foreach ($tickets as $t) {
+          $key = $t['ho_ten'] . '_' . $t['so_giay_to'];
+          $grouped[$key][] = $t;
+      }
+    ?>
+
+    <?php foreach ($grouped as $passenger => $list): $p = $list[0]; ?>
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:20px;padding:18px 22px;margin-bottom:16px;box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+        
+        <!-- Cột trái -->
+        <div style="flex:1;">
+          <div style="font-weight:600;font-size:16px;color:#1e3a8a;">
+            👤 <?=h($p['ho_ten'])?> 
+            (<?= isset($p['gioi_tinh']) ? ($p['gioi_tinh']==='M'?'Nam':($p['gioi_tinh']==='F'?'Nữ':'Khác')) : 'Không rõ' ?>, <?=h($p['ngay_sinh'])?>)
           </div>
-          <div class="passenger-qr">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=<?=urlencode($p['so_ve'])?>" alt="QR vé">
+
+          <!-- Các chiều bay -->
+          <div style="font-size:14px;color:#334155;line-height:1.6;margin-top:6px;">
+            <?php foreach ($list as $idx => $t): ?>
+              <div style="margin-top:4px;">
+                <?= $idx == 0 ? '✈' : '↩' ?> 
+                <strong><?=$t['san_bay_di']?> → <?=$t['san_bay_den']?></strong> 
+                (<?=$t['so_hieu']?>) • Ghế <strong><?=$t['so_ghe']?></strong>
+                <br>Giờ đi: <?=fmtDT($t['gio_di'])?> — Giờ đến: <?=fmtDT($t['gio_den'])?>
+                <br>Hạng: <?=h($t['ten_hang'])?> • 
+                Trạng thái: <span class="status pill <?=$t['trang_thai']?>"><?=h($t['trang_thai'])?></span>
+              </div>
+            <?php endforeach; ?>
           </div>
         </div>
-      <?php endforeach; ?>
+
+        <!-- QR -->
+        <div style="text-align:center;flex:0 0 140px;">
+          <img 
+            src="https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=<?=urlencode($p['ho_ten'].'-'.$p['so_giay_to'].'-'.$booking['pnr'])?>" 
+            alt="QR Vé <?=h($p['ho_ten'])?>"
+            style="width:120px;height:120px;border:1px solid #e2e8f0;border-radius:8px;padding:4px;background:#fff;"
+          >
+          <div style="font-size:12px;color:#475569;margin-top:4px;">
+            <?=h($booking['pnr'])?>
+          </div>
+        </div>
+
+        <!-- Nút -->
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;min-width:130px;">
+          <a href="index.php?p=print_ticket&ve_id=<?=$list[0]['ve_id']?>" 
+             target="_blank"
+             class="btn outline"
+             style="width:110px;text-align:center;">🖨 In vé</a>
+          <a href="index.php?p=edit_ticket&id=<?=$list[0]['ve_id']?>"
+             class="btn"
+             style="width:110px;text-align:center;">✏ Sửa</a>
+          <?php if ($list[0]['trang_thai']!=='HUY'): ?>
+            <a href="index.php?p=cancel_ticket&ve_id=<?=$list[0]['ve_id']?>"
+               onclick="return confirm('Bạn có chắc muốn hủy vé này?');"
+               class="btn outline"
+               style="color:#dc2626;border-color:#dc2626;width:110px;text-align:center;">❌ Hủy vé</a>
+          <?php endif; ?>
+        </div>
+      </div>
+    <?php endforeach; ?>
+
     <?php endif; ?>
-  </div>
+  <?php endif; ?>
 
-  <div class="btn-row" style="margin-top:1.5rem;">
-    <a href="index.php?p=customer" class="btn">← Quay lại Trang chủ</a>
+  <div style="margin-top:16px;display:flex;gap:10px;">
+    <a class="btn outline" href="javascript:history.back()">← Quay lại</a>
+    <a class="btn" href="index.php?p=customer">🏠 Trang chủ</a>
   </div>
-  <div class="btn-row" style="margin-top:1rem;">
-  <a href="index.php?p=my_tickets" class="btn outline">📋 Xem tất cả vé của tôi</a>
-</div>
-
 </main>
 
 <footer class="footer">
