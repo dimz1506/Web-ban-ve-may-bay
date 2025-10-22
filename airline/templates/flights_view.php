@@ -50,9 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="logo">✈</div>
       <div>VNAir Ticket</div>
     </div>
-    <div class="nav-cta">
-      <a class="btn outline" href="<?= APP_BASE ?>/index.php?p=logout">Đăng xuất</a>
-    </div>
+   
   </div>
 </header>
 
