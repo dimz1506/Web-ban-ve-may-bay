@@ -11,7 +11,7 @@
       <a href="<?= APP_BASE ?>/index.php?p=promotions">Quản lý khuyến mãi</a>
     </nav> -->
     <div class="nav-cta">
-      <a class="btn outline" href="<?= APP_BASE ?>/index.php?p=logout">Đăng xuất</a>
+      
     </div>
   </div>
 </header>
