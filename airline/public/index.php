@@ -29,7 +29,10 @@ if ($p !== null && $p !== 'home') {
     'sanbay'    => 'admin/sanbay.php',
     'fare'        => 'admin/fare.php',
     
-
+    'book_search'  => 'customer/book_search.php',
+    'notifications'=> 'customer/notifications.php',
+    'invoice'      => 'customer/invoice.php',
+    
     'search_results' => 'booking/search_results.php',
     'select_seat' => 'booking/select_seat.php',
     'add_passengers' => 'booking/add_passengers.php',
@@ -37,6 +40,12 @@ if ($p !== null && $p !== 'home') {
     'my_bookings' => 'booking/my_bookings.php',
     'my_tickets' => 'booking/my_tickets.php',
     'edit_ticket' => 'booking/edit_ticket.php',
+    'cancel_ticket' => 'booking/cancel_ticket.php',
+    'confirm_booking'=> 'booking/confirm_booking.php',
+    'payment'=> 'booking/payment.php',
+    'search_roundtrip'=> 'booking/search_roundtrip.php',
+    'verify_ticket' => 'booking/verify_ticket.php',
+    'print_ticket' => 'booking/print_ticket.php',
   ];
   if (!isset($map[$p])) {
     http_response_code(404);
