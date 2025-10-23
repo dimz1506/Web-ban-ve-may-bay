@@ -98,17 +98,21 @@ http://localhost/Web-ban-ve-may-bay/airline/public/index.php?p=my_bookings&pnr=B
 ## ⚠️ Lưu ý quan trọng
 
 1. **Mật khẩu**: Tất cả tài khoản đều có mật khẩu `password`
-2. **Dữ liệu sạch**: Đã xóa tất cả dữ liệu cũ trước 24/10/2025
-3. **Test thành công**: PNR B105CE đã được đặt thành công
-4. **Hệ thống hoạt động**: Đặt vé, thanh toán, tạo booking đều OK
+2. **INSERT IGNORE**: File sử dụng INSERT IGNORE để tránh lỗi duplicate
+3. **Foreign Key**: Đã sửa tất cả tuyen_bay_id để khớp với database
+4. **Cấu trúc bảng**: Đã cập nhật theo schema thực tế (thanh_toan, etc.)
+5. **Test thành công**: PNR B105CE đã được đặt thành công
+6. **Hệ thống hoạt động**: Đặt vé, thanh toán, tạo booking đều OK
 
 ## 📝 Ghi chú
 
 - File này được tạo tự động từ dữ liệu hiện tại
+- **INSERT IGNORE**: Có thể chạy nhiều lần mà không gặp lỗi duplicate
+- **Schema đúng**: Đã cập nhật theo cấu trúc database thực tế
 - Có thể sử dụng để khôi phục hệ thống về trạng thái hiện tại
 - Bao gồm tất cả dữ liệu cần thiết để test đầy đủ các chức năng
 
 ---
 **Tạo lúc**: 2025-10-24  
-**Phiên bản**: 1.0  
+**Phiên bản**: 2.0 (Đã sửa lỗi)  
 **Trạng thái**: Hoàn thành ✅

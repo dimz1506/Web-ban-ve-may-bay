@@ -94,7 +94,10 @@ http://localhost/Web-ban-ve-may-bay/airline/public/index.php?p=my_bookings&pnr=B
 ## 📝 Ghi chú quan trọng:
 
 ### ✅ **Đã hoàn thành:**
-- **Xóa dữ liệu cũ**: Tất cả chuyến bay trước 24/10/2025 đã được xóa
+- **File SQL hoàn chỉnh**: complete_data_export.sql với INSERT IGNORE
+- **Sửa lỗi duplicate**: Sử dụng INSERT IGNORE để tránh lỗi duplicate entry
+- **Sửa lỗi foreign key**: Đã điều chỉnh tuyen_bay_id cho đúng với database
+- **Cập nhật schema**: Sửa cấu trúc bảng thanh_toan và các bảng khác
 - **Thêm dữ liệu mới**: 61 chuyến bay từ 25/10/2025 đến 31/12/2025
 - **Test đặt vé thành công**: PNR B105CE cho customer4@example.com
 - **Hệ thống hoạt động**: Đặt vé, thanh toán, tạo booking đều OK
@@ -105,7 +108,14 @@ http://localhost/Web-ban-ve-may-bay/airline/public/index.php?p=my_bookings&pnr=B
 - Tài khoản không có dữ liệu để test đăng ký mới và đặt vé từ đầu
 
 ### 🎯 **Để test:**
-1. **Đăng nhập** với customer4@example.com / password
-2. **Xem vé đã đặt** tại my_tickets
-3. **Tra cứu booking** với PNR: B105CE
-4. **Đặt vé mới** từ ngày 25/10/2025 trở đi
+1. **Import dữ liệu**: `mysql -u root dat_ve_may_bay < complete_data_export.sql`
+2. **Đăng nhập** với customer4@example.com / password
+3. **Xem vé đã đặt** tại my_tickets
+4. **Tra cứu booking** với PNR: B105CE
+5. **Đặt vé mới** từ ngày 25/10/2025 trở đi
+
+### 🔧 **Tính năng file SQL:**
+- **INSERT IGNORE**: Chạy nhiều lần không lỗi duplicate
+- **Schema đúng**: Cấu trúc bảng đã được cập nhật
+- **Foreign Key**: Tất cả ràng buộc đã được sửa
+- **15 bảng**: Bao gồm đầy đủ tất cả bảng trong database
