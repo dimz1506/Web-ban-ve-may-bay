@@ -1,6 +1,5 @@
 <?php
 // pages/admin/reports.php
-session_start();
 if (!function_exists('db')) {
     require_once dirname(__DIR__) . '/config.php';
 }
@@ -37,6 +36,9 @@ $stmt = $pdo->prepare("
 $stmt->execute([$from . " 00:00:00", $to . " 23:59:59"]);
 $flights = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+
+$stmt->execute([$from . " 00:00:00", $to . " 23:59:59"]);
+$flights = $stmt->fetchAll(PDO::FETCH_ASSOC);
 // Hạng ghế được chọn
 $stmt = $pdo->prepare("
     SELECT h.ten, COUNT(*) as so_ve

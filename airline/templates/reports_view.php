@@ -49,19 +49,20 @@
     <h2>📊 Báo cáo & Thống kê hệ thống</h2>
 
     <!-- Bộ lọc -->
-    <form method="get" class="filter-form">
-      <div class="field">
-        <label for="from">Từ ngày</label>
-        <input type="date" id="from" name="from" value="<?= htmlspecialchars($from) ?>">
-      </div>
-      <div class="field">
-        <label for="to">Đến ngày</label>
-        <input type="date" id="to" name="to" value="<?= htmlspecialchars($to) ?>">
-      </div>
-      <div class="actions">
-        <button class="btn primary" type="submit">📅 Xem báo cáo</button>
-      </div>
-    </form>
+    <form method="get" action="index.php">
+  <input type="hidden" name="p" value="reports">
+  <div class="field">
+    <label for="from">Từ ngày</label>
+    <input type="date" id="from" name="from" value="<?= htmlspecialchars($from) ?>">
+  </div>
+  <div class="field">
+    <label for="to">Đến ngày</label>
+    <input type="date" id="to" name="to" value="<?= htmlspecialchars($to) ?>">
+  </div>
+  <div class="actions">
+    <button class="btn primary" type="submit">📅 Xem báo cáo</button>
+  </div>
+</form>
 
     <!-- Số liệu tổng quan -->
     <div class="summary">
