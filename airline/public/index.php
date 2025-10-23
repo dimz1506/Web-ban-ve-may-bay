@@ -22,6 +22,12 @@ if ($p !== null && $p !== 'home') {
     'profile'      => 'customer/profile.php',
     'flights'      => 'admin/flights.php',
     'promotions'   => 'admin/promotions.php',
+    'sanbay'       => 'admin/sanbay.php',
+    'classes'      => 'admin/classes.php',
+    'reports'      => 'admin/reports.php',
+    'fare'        => 'admin/fare.php',
+    'router'       => 'admin/router.php',
+
     // Customer pages
     'profile'      => 'customer/profile.php',
     'payment'      => 'customer/payment.php',
