@@ -7,6 +7,65 @@
 if (!function_exists('db')) require_once dirname(__DIR__,2).'/config.php';
 if (session_status() === PHP_SESSION_NONE) session_start();
 
+// Xử lý POST request để tạo booking thực sự
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
+  // Lấy thông tin user hiện tại
+  $user = me();
+  if (!$user) {
+    die("Vui lòng đăng nhập để đặt vé.");
+  }
+  
+  // Lấy dữ liệu từ POST
+  $flight_id  = (int)($_POST['flight_id'] ?? 0);
+  $return_id  = (int)($_POST['return_id'] ?? 0);
+  $cabin      = trim($_POST['cabin'] ?? 'ECON');
+  $price_per  = (float)($_POST['price_per'] ?? 0);
+  $discount   = (float)($_POST['discount'] ?? 0);
+  $passengers = $_POST['passengers'] ?? [];
+  $seats      = $_POST['seats'] ?? [];
+  
+  // Tạo PNR
+  $pnr = strtoupper(substr(bin2hex(random_bytes(6)), 0, 6));
+  
+  // Tính tổng tiền
+  $qty = count($passengers);
+  $subtotal = $qty * $price_per;
+  $discount_amount = $subtotal * $discount;
+  $total = $subtotal - $discount_amount;
+  
+  try {
+    // Tạo booking
+    $stmt = db()->prepare("INSERT INTO dat_cho (khach_hang_id, pnr, trang_thai, kenh, tong_tien, tien_te) VALUES (?, ?, 'XAC_NHAN', 'WEB', ?, 'VND')");
+    $stmt->execute([$user['id'], $pnr, $total]);
+    $dat_cho_id = db()->lastInsertId();
+    
+    // Lấy hạng ghế ID
+    $stmt_hg = db()->prepare("SELECT id FROM hang_ghe WHERE ma = ? LIMIT 1");
+    $stmt_hg->execute([$cabin]);
+    $hang_ghe_id = $stmt_hg->fetchColumn();
+    
+    // Tạo hành khách và vé
+    foreach ($passengers as $i => $p) {
+      // Tạo hành khách
+      $stmt_hk = db()->prepare("INSERT INTO hanh_khach (dat_cho_id, loai, ho_ten, gioi_tinh, ngay_sinh, loai_giay_to, so_giay_to, quoc_tich) VALUES (?, 'ADT', ?, ?, ?, 'CCCD', ?, 'Việt Nam')");
+      $stmt_hk->execute([$dat_cho_id, $p['ho_ten'], $p['gioi_tinh'], $p['ngay_sinh'], $p['giay_to']]);
+      $hanh_khach_id = db()->lastInsertId();
+      
+      // Tạo vé
+      $so_ve = 'VN' . time() . rand(1000, 9999);
+      $stmt_ve = db()->prepare("INSERT INTO ve (so_ve, dat_cho_id, hanh_khach_id, chuyen_bay_id, hang_ghe_id, so_ghe, trang_thai, phat_hanh_boi) VALUES (?, ?, ?, ?, ?, ?, 'DA_XUAT', ?)");
+      $stmt_ve->execute([$so_ve, $dat_cho_id, $hanh_khach_id, $flight_id, $hang_ghe_id, $seats[$i] ?? 'A' . ($i+1), $user['id']]);
+    }
+    
+    // Redirect đến trang booking với PNR
+    header("Location: index.php?p=my_bookings&pnr=" . $pnr);
+    exit;
+    
+  } catch (Exception $e) {
+    die("Lỗi khi tạo booking: " . $e->getMessage());
+  }
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
   http_response_code(400);
   die("Bad request: Vui lòng quay lại chọn vé.");
@@ -19,6 +78,7 @@ $cabin      = trim($_POST['cabin'] ?? 'ECON');
 $price_per  = (float)($_POST['price_per'] ?? 0);
 $discount   = (float)($_POST['discount'] ?? 0);
 $passengers = $_POST['passengers'] ?? [];
+$seats      = $_POST['seats'] ?? [];
 
 if ($flight_id <= 0 || empty($passengers)) {
   die("Thiếu thông tin chuyến bay hoặc hành khách.");
@@ -150,17 +210,62 @@ function confirmBooking() {
   btn.textContent = 'Đang xử lý...';
   loading.style.display = 'flex';
 
-  // 🔹 Mô phỏng quá trình thanh toán (không kết nối máy chủ)
-  setTimeout(() => {
-    loading.style.display = 'none';
-    const toast = document.getElementById('toast');
-    toast.style.display = 'block';
-
-    // Sau 2s tự động chuyển trang
-    setTimeout(() => {
-      window.location.href = 'index.php?p=my_bookings';
-    }, 2000);
-  }, 1500);
+  // Tạo form ẩn để gửi POST request
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = '';
+  
+  // Thêm input confirm_booking
+  const confirmInput = document.createElement('input');
+  confirmInput.type = 'hidden';
+  confirmInput.name = 'confirm_booking';
+  confirmInput.value = '1';
+  form.appendChild(confirmInput);
+  
+  // Thêm dữ liệu từ PHP (được embed trong HTML)
+  const data = {
+    'flight_id': '<?= $flight_id ?>',
+    'return_id': '<?= $return_id ?>',
+    'cabin': '<?= $cabin ?>',
+    'price_per': '<?= $price_per ?>',
+    'discount': '<?= $discount ?>',
+    'passengers': <?= json_encode($passengers) ?>,
+    'seats': <?= json_encode($seats) ?>
+  };
+  
+  // Thêm các input ẩn với dữ liệu
+  Object.keys(data).forEach(key => {
+    if (key === 'passengers' || key === 'seats') {
+      // Xử lý mảng
+      data[key].forEach((item, index) => {
+        if (typeof item === 'object') {
+          Object.keys(item).forEach(subKey => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = `${key}[${index}][${subKey}]`;
+            input.value = item[subKey];
+            form.appendChild(input);
+          });
+        } else {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = `${key}[${index}]`;
+          input.value = item;
+          form.appendChild(input);
+        }
+      });
+    } else {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = key;
+      input.value = data[key];
+      form.appendChild(input);
+    }
+  });
+  
+  // Gửi form
+  document.body.appendChild(form);
+  form.submit();
 }
 </script>
 
