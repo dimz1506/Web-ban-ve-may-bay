@@ -1,4 +1,9 @@
 <?php
+// session_start();
+// if (!isset($_SESSION['user_id'])) {
+//   header('Location: index.php?p=login');
+//   exit;
+// }
 
 if (!function_exists('db')) { 
     require_once dirname(__DIR__,2).'/config.php'; 
@@ -7,10 +12,12 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// 🟢 Nhận thông tin chuyến bay
 $flight_id = intval($_GET['flight_id'] ?? 0);
+$return_id = intval($_GET['return_id'] ?? 0); // ✅ chuyến về (nếu có)
 $cabin = $_GET['cabin'] ?? 'ECON';
 
-// Thông tin chuyến bay
+// Thông tin chuyến bay đi
 $st = db()->prepare(
   "SELECT cb.*, s1.ten as ten_di, s2.ten as ten_den
    FROM chuyen_bay cb
@@ -22,7 +29,7 @@ $st = db()->prepare(
 $st->execute([$flight_id]);
 $flight = $st->fetch();
 
-// Thông tin hạng ghế + tổng ghế
+// Thông tin hạng ghế đi
 $st2 = db()->prepare(
   "SELECT hg.id, hg.ma, hg.ten, cgh.gia_co_ban, cgh.so_ghe_con
    FROM chuyen_bay_gia_hang cgh
@@ -36,13 +43,31 @@ if (!$flight || !$cabinInfo) {
     die("Không tìm thấy chuyến bay hoặc hạng ghế.");
 }
 
-// Ghế đã đặt
+// Ghế đã đặt chiều đi
 $st3 = db()->prepare(
   "SELECT so_ghe FROM ve 
    WHERE chuyen_bay_id=? AND hang_ghe_id=? AND trang_thai='DA_XUAT'"
 );
 $st3->execute([$flight_id, $cabinInfo['id']]);
 $takenSeats = $st3->fetchAll(PDO::FETCH_COLUMN);
+
+// Nếu có chuyến về thì lấy thêm thông tin
+$flight_return = null;
+$cabinReturn = null;
+$takenSeatsReturn = [];
+
+if ($return_id > 0) {
+  $st->execute([$return_id]);
+  $flight_return = $st->fetch();
+
+  $st2->execute([$return_id, $cabin]);
+  $cabinReturn = $st2->fetch();
+
+  if ($cabinReturn) {
+    $st3->execute([$return_id, $cabinReturn['id']]);
+    $takenSeatsReturn = $st3->fetchAll(PDO::FETCH_COLUMN);
+  }
+}
 
 // Tổng ghế theo khoang
 $totalSeats = (int)$cabinInfo['so_ghe_con'];
@@ -73,8 +98,7 @@ $emptySeats = $totalSeats - $bookedSeats;
   .stats { margin-top:1rem; padding:.8rem; background:#f1f5f9; border-radius:8px; }
   .btn-row { margin-top:2rem; display:flex; gap:1rem; }
   .btn { background:#1e40af; color:#fff; padding:.5rem 1.2rem;
-         border-radius:8px; text-decoration:none; text-align:center; border:0; cursor:pointer; }
-  .btn[disabled], .btn[aria-disabled="true"] { opacity:.6; pointer-events:none; }
+         border-radius:8px; text-decoration:none; text-align:center; }
   .btn:hover { background:#1e3a8a; }
   .btn.outline { background:transparent; border:1px solid #1e40af; color:#1e40af; }
   .btn.outline:hover { background:#e0e7ff; }
@@ -87,11 +111,7 @@ $emptySeats = $totalSeats - $bookedSeats;
       <div class="logo">✈</div>
       <div>VNAir Ticket</div>
     </div>
-    <nav>
-      <a href="index.php#uu-dai">Ưu đãi</a>
-      <a href="index.php#quy-trinh">Quy trình</a>
-      <a href="index.php#lien-he">Liên hệ</a>
-    </nav>
+   
   </div>
 </header>
 
@@ -111,34 +131,68 @@ $emptySeats = $totalSeats - $bookedSeats;
     Còn trống: <strong id="emptyCount"><?=$emptySeats?></strong>
   </div>
 
-  <form method="POST" action="index.php?p=add_passengers" id="seatForm" novalidate>
+  <form method="POST" action="index.php?p=add_passengers">
     <input type="hidden" name="flight_id" value="<?=$flight_id?>">
+    <?php if ($return_id > 0): ?>
+      <input type="hidden" name="return_id" value="<?=$return_id?>">
+    <?php endif; ?>
     <input type="hidden" name="cabin" value="<?=$cabin?>">
     <input type="hidden" name="price" value="<?=$cabinInfo['gia_co_ban']?>" id="priceInput">
-    <input type="hidden" name="seats" id="seatsInput">
 
-    <div class="plane" id="plane">
+    <!-- 🔹 Hai input tách riêng ghế đi & về -->
+    <input type="hidden" name="seats" id="seatsGoInput">
+    <input type="hidden" name="return_seats" id="seatsReturnInput">
+
+    <!-- Ghế chiều đi -->
+    <h3 style="margin-top:1.5rem;">✈ Chuyến đi</h3>
+    <div class="plane">
       <?php
       $cols = ['A','B','C','D','E','F'];
       $rows = ceil($totalSeats / count($cols));
       $seatCount = 0;
-
       for ($r=1; $r <= $rows; $r++) {
         echo "<div class='row'>";
         foreach ($cols as $c) {
           $seatCount++;
           if ($seatCount > $totalSeats) break;
-
           $seat = $r.$c;
           $cls = "seat";
           if (in_array($seat, $takenSeats)) $cls .= " taken";
-
-          echo "<div class='$cls' data-seat='$seat' role='button' aria-pressed='false' tabindex='0'>$seat</div>";
+          echo "<div class='$cls' data-seat='$seat' data-flight='go'>$seat</div>";
         }
         echo "</div>";
       }
       ?>
     </div>
+
+    <?php if ($return_id > 0 && $flight_return): ?>
+      <hr style="margin:2rem 0;">
+      <h3>↩ Chuyến về</h3>
+      <p>
+        Chuyến <strong><?=htmlspecialchars($flight_return['so_hieu'])?></strong>  
+        (<?=htmlspecialchars($flight_return['ten_di'])?> → <?=htmlspecialchars($flight_return['ten_den'])?>)  
+        <br>Ngày về: <?=$flight_return['gio_di']?> - Ngày đến: <?=$flight_return['gio_den']?>
+      </p>
+      <div class="plane">
+        <?php
+        $cols = ['A','B','C','D','E','F'];
+        $rows = ceil($cabinReturn['so_ghe_con'] / count($cols));
+        $seatCount = 0;
+        for ($r=1; $r <= $rows; $r++) {
+          echo "<div class='row'>";
+          foreach ($cols as $c) {
+            $seatCount++;
+            if ($seatCount > $cabinReturn['so_ghe_con']) break;
+            $seat = $r.$c;
+            $cls = "seat";
+            if (in_array($seat, $takenSeatsReturn)) $cls .= " taken";
+            echo "<div class='$cls' data-seat='$seat' data-flight='return'>$seat</div>";
+          }
+          echo "</div>";
+        }
+        ?>
+      </div>
+    <?php endif; ?>
 
     <!-- Legend -->
     <div class="legend">
@@ -150,14 +204,13 @@ $emptySeats = $totalSeats - $bookedSeats;
     <div id="summary">Chưa chọn ghế nào.</div>
 
     <div class="btn-row">
-      <button type="submit" class="btn" id="continueBtn" aria-disabled="true" disabled>Tiếp tục</button>
+      <button type="submit" class="btn">Tiếp tục</button>
       <a href="javascript:history.back()" class="btn outline">← Quay lại tìm chuyến</a>
       <a href="index.php?p=customer" class="btn outline">← Trang chủ</a>
     </div>
   </form>
-  <br>
 </main>
-
+<br>
 <footer id="lien-he">
   <div class="container">
     <div>© <span id="y"></span> VNAir Ticket.</div>
@@ -166,87 +219,48 @@ $emptySeats = $totalSeats - $bookedSeats;
 <script>
 document.getElementById('y').textContent = new Date().getFullYear();
 
-let selected = [];
-const pricePerSeat = (function(){
-  const v = document.getElementById('priceInput').value;
-  const p = parseInt(v, 10);
-  return isNaN(p) ? 0 : p;
-})();
+let selected = { go: [], return: [] };
 
-const bookedCountEl = document.getElementById('bookedCount');
-const selectedCountEl = document.getElementById('selectedCount');
-const emptyCountEl = document.getElementById('emptyCount');
-const seatsInput = document.getElementById('seatsInput');
-const continueBtn = document.getElementById('continueBtn');
-const seatEls = Array.from(document.querySelectorAll('.seat'));
-
-function setContinueEnabled(enabled){
-  if (enabled){
-    continueBtn.removeAttribute('disabled');
-    continueBtn.setAttribute('aria-disabled','false');
-  } else {
-    continueBtn.setAttribute('disabled','disabled');
-    continueBtn.setAttribute('aria-disabled','true');
-  }
-}
-
-seatEls.forEach(s => {
-  // click
+// 🟢 Xử lý chọn ghế
+document.querySelectorAll('.seat').forEach(s => {
   s.addEventListener('click', () => {
-    if (s.classList.contains('taken')) return; // ghế đã đặt -> không chọn
-    s.classList.toggle('selected');
+    if (s.classList.contains('taken')) return;
+    const flight = s.dataset.flight || 'go';
     const seat = s.dataset.seat;
+    s.classList.toggle('selected');
+
     if (s.classList.contains('selected')) {
-      if (!selected.includes(seat)) selected.push(seat);
-      s.setAttribute('aria-pressed','true');
+      selected[flight].push(seat);
     } else {
-      selected = selected.filter(x => x !== seat);
-      s.setAttribute('aria-pressed','false');
+      selected[flight] = selected[flight].filter(x => x !== seat);
     }
     updateSummary();
   });
-
-  // keyboard accessibility (space / enter)
-  s.addEventListener('keydown', (ev) => {
-    if (ev.key === ' ' || ev.key === 'Enter') {
-      ev.preventDefault();
-      s.click();
-    }
-  });
 });
 
-function updateSummary(){
-  selectedCountEl.textContent = selected.length;
-  emptyCountEl.textContent = <?=$totalSeats?> - parseInt(bookedCountEl.textContent) - selected.length;
-
-  if (selected.length === 0) {
-    document.getElementById('summary').textContent = "Chưa chọn ghế nào.";
-    setContinueEnabled(false);
-  } else {
-    document.getElementById('summary').textContent =
-      "Đã chọn: " + selected.join(', ') +
-      " | Tổng: " + (selected.length * pricePerSeat).toLocaleString() + " VND";
-    setContinueEnabled(true);
+// 🟢 Cập nhật tóm tắt lựa chọn
+function updateSummary() {
+  let text = "";
+  if (selected.go.length === 0 && selected.return.length === 0)
+    text = "Chưa chọn ghế nào.";
+  else {
+    text = "Đã chọn: ";
+    if (selected.go.length > 0) text += "Chiều đi (" + selected.go.join(", ") + ")";
+    if (selected.return.length > 0) text += " | Chiều về (" + selected.return.join(", ") + ")";
   }
-  seatsInput.value = selected.join(',');
+  document.getElementById('summary').textContent = text;
+  document.getElementById('seatsGoInput').value = selected.go.join(',');
+  document.getElementById('seatsReturnInput').value = selected.return.join(',');
 }
 
-// Form submit validation (client-side)
-document.getElementById('seatForm').addEventListener('submit', function(e){
-  if (selected.length === 0){
-    e.preventDefault();
-    // Có thể thay bằng modal / toast trong project của bạn
-    alert('Vui lòng chọn ít nhất 1 ghế trước khi tiếp tục.');
-    // focus vào khu vực ghế
-    const firstAvailable = document.querySelector('.seat:not(.taken)');
-    if (firstAvailable) firstAvailable.focus();
-    return false;
+// 🛑 Kiểm tra trước khi submit form
+document.querySelector("form").addEventListener("submit", function(e) {
+  if (selected.go.length === 0 && selected.return.length === 0) {
+    alert("⚠️ Vui lòng chọn ít nhất một ghế trước khi tiếp tục!");
+    e.preventDefault(); // Ngăn gửi form
   }
-  // Nếu có ghế -> form submit bình thường; server vẫn kiểm tra thêm
 });
-
-// initial state
-updateSummary();
 </script>
+
 </body>
 </html>

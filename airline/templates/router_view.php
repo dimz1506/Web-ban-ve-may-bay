@@ -14,8 +14,8 @@
          <main class="container">
                   <h2>✈️ Quản lý tuyến bay</h2>
 
-                  <?php if ($m = flash_get('ok')): ?><div class="ok"><?= $m ?></div><?php endif; ?>
-                  <?php if ($m = flash_get('err')): ?><div class="err"><?= $m ?></div><?php endif; ?>
+        <?php if ($m = flash_get('ok')): ?><div class="ok"><?= $m ?></div><?php endif; ?>
+        <?php if ($m = flash_get('err')): ?><div class="err"><?= $m ?></div><?php endif; ?>
 
                   <!-- FORM TUYẾN BAY -->
                   <div class="card">
@@ -30,17 +30,17 @@
                                                       <input name="ma_tuyen" value="<?= htmlspecialchars($edit_row['ma_tuyen'] ?? '') ?>" required placeholder="VD: VN-HAN-HCM">
                                              </div>
 
-                                             <div class="field">
-                                                      <label>Sân bay đi</label>
-                                                      <select name="di" required>
-                                                               <option value="">-- Chọn sân bay đi --</option>
-                                                               <?php foreach ($airports as $a): ?>
-                                                                        <option value="<?= $a['ma'] ?>" <?= ($edit_row['di'] ?? '') === $a['ma'] ? 'selected' : '' ?>>
-                                                                                 <?= $a['ma'] ?> — <?= htmlspecialchars($a['ten']) ?> (<?= htmlspecialchars($a['thanh_pho']) ?>)
-                                                                        </option>
-                                                               <?php endforeach; ?>
-                                                      </select>
-                                             </div>
+                    <div class="field">
+                        <label>Sân bay đi</label>
+                        <select name="di" required>
+                            <option value="">-- Chọn sân bay đi --</option>
+                            <?php foreach ($airports as $a): ?>
+                                <option value="<?= $a['ma'] ?>" <?= ($edit_row['di'] ?? '') === $a['ma'] ? 'selected' : '' ?>>
+                                    <?= $a['ma'] ?> — <?= htmlspecialchars($a['ten']) ?> (<?= htmlspecialchars($a['thanh_pho']) ?>)
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
 
                                              <div class="field">
                                                       <label>Sân bay đến</label>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8">
   <title>Báo cáo & Thống kê | VNAir Ticket</title>
@@ -39,6 +40,7 @@
     .page-actions { margin-top: 24px; text-align: right; }
   </style>
 </head>
+
 
 <body>
   <?php include __DIR__ . '/../includes/header.php'; ?>
@@ -159,4 +161,5 @@
     });
   </script>
 </body>
+
 </html>

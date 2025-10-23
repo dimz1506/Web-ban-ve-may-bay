@@ -1,97 +1,88 @@
 <?php
-if (!function_exists('db')) { require_once dirname(__DIR__,2).'/config.php'; }
+// session_start();
+// if (!isset($_SESSION['user_id'])) {
+//   header('Location: index.php?p=login');
+//   exit;
+// }
+if (!function_exists('db')) require_once dirname(__DIR__,2).'/config.php';
 if (session_status() === PHP_SESSION_NONE) session_start();
 
-if ($_SERVER['REQUEST_METHOD']==='POST') {
-    $flight_id   = (int)$_POST['flight_id'];
-    $cabin       = trim($_POST['cabin']);
-    $price_per   = (float)$_POST['price_per'];
-    $seats       = (array)($_POST['seats'] ?? []);
-    $passengers  = $_POST['passengers'] ?? [];
-} else {
-    die("Truy cập không hợp lệ.");
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+  http_response_code(400);
+  die("Bad request: Vui lòng quay lại chọn vé.");
 }
 
-// Lấy thông tin chuyến bay
-$st = db()->prepare(
-  "SELECT cb.so_hieu, s1.ten as san_bay_di, s2.ten as san_bay_den, cb.gio_di, cb.gio_den, tb.id as tuyen_id
-   FROM chuyen_bay cb
-   JOIN tuyen_bay tb ON cb.tuyen_bay_id=tb.id
-   JOIN san_bay s1 ON tb.di=s1.ma
-   JOIN san_bay s2 ON tb.den=s2.ma
-   WHERE cb.id=?"
-);
+// ✅ Nhận dữ liệu từ form add_passengers
+$flight_id  = (int)($_POST['flight_id'] ?? 0);
+$return_id  = (int)($_POST['return_id'] ?? 0);
+$cabin      = trim($_POST['cabin'] ?? 'ECON');
+$price_per  = (float)($_POST['price_per'] ?? 0);
+$discount   = (float)($_POST['discount'] ?? 0);
+$passengers = $_POST['passengers'] ?? [];
+
+if ($flight_id <= 0 || empty($passengers)) {
+  die("Thiếu thông tin chuyến bay hoặc hành khách.");
+}
+
+// 🧾 Lấy thông tin chuyến bay
+$st = db()->prepare("
+  SELECT cb.*, s1.ten AS ten_di, s2.ten AS ten_den
+  FROM chuyen_bay cb
+  JOIN tuyen_bay tb ON tb.id = cb.tuyen_bay_id
+  JOIN san_bay s1 ON s1.ma = tb.di
+  JOIN san_bay s2 ON s2.ma = tb.den
+  WHERE cb.id = ?
+");
 $st->execute([$flight_id]);
 $flight = $st->fetch();
 
-$pnr   = strtoupper(substr(bin2hex(random_bytes(6)),0,6));
-$total = count($seats) * $price_per;
-
-// Giả sử có session user (test tạm id=1)
-$khach_hang_id = $_SESSION['user_id'] ?? 1;
-
-if (isset($_POST['confirm_booking'])) {
-    // Tạo record trong dat_cho (booking)
-    $st = db()->prepare("INSERT INTO dat_cho (khach_hang_id, pnr, trang_thai) VALUES (?, ?, 'DA_XUAT')");
-    $st->execute([$khach_hang_id, $pnr]);
-    $dat_cho_id = db()->lastInsertId();
-
-    // Lấy id hạng ghế
-    $stHg = db()->prepare("SELECT id FROM hang_ghe WHERE ma=? LIMIT 1");
-    $stHg->execute([$cabin]);
-    $hang_ghe_id = $stHg->fetchColumn();
-
-    foreach ($passengers as $i=>$p) {
-        $seat = $seats[$i] ?? null;
-
-        // 1. Lưu hành khách
-        $st1 = db()->prepare("INSERT INTO hanh_khach 
-            (dat_cho_id, loai, ho_ten, gioi_tinh, ngay_sinh, loai_giay_to, so_giay_to, quoc_tich) 
-            VALUES (?, 'NGUOI_LON', ?, ?, ?, 'CMND', ?, 'VN')");
-        $st1->execute([$dat_cho_id, $p['ho_ten'], $p['gioi_tinh'], $p['ngay_sinh'], $p['giay_to']]);
-        $hanh_khach_id = db()->lastInsertId();
-
-        // Sinh số vé duy nhất
-        $so_ve = strtoupper("VE".time().rand(1000,9999));
-
-        // 2. Lưu vé
-        $st2 = db()->prepare("INSERT INTO ve 
-            (dat_cho_id, hanh_khach_id, chuyen_bay_id, hang_ghe_id, so_ghe, so_ve, trang_thai) 
-            VALUES (?, ?, ?, ?, ?, ?, 'DA_XUAT')");
-        $st2->execute([$dat_cho_id, $hanh_khach_id, $flight_id, $hang_ghe_id, $seat, $so_ve]);
-    }
-
-    header("Location: index.php?p=my_bookings&pnr=".$pnr);
-    exit;
+$returnFlight = null;
+if ($return_id) {
+  $st2 = db()->prepare("
+    SELECT cb.*, s1.ten AS ten_di, s2.ten AS ten_den
+    FROM chuyen_bay cb
+    JOIN tuyen_bay tb ON tb.id = cb.tuyen_bay_id
+    JOIN san_bay s1 ON s1.ma = tb.di
+    JOIN san_bay s2 ON s2.ma = tb.den
+    WHERE cb.id = ?
+  ");
+  $st2->execute([$return_id]);
+  $returnFlight = $st2->fetch();
 }
+
+// --- Tính toán ---
+$qty = count($passengers);
+$subtotal = $qty * $price_per;
+$discount_amount = $subtotal * $discount;
+$total = $subtotal - $discount_amount;
+
+function vnd($n){ return number_format((float)$n, 0, ',', '.') . ' VND'; }
 ?>
 <!doctype html>
 <html lang="vi">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Xác nhận vé</title>
-  <link rel="stylesheet" href="assets/home.css">
-  <style>
-    .ticket {background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin:16px 0}
-    .ticket-header {display:flex;justify-content:space-between;align-items:center}
-    .ticket h2 {margin:0;}
-    .passenger {margin:.5rem 0;padding:.5rem;border-bottom:1px dashed #ccc}
-    .btn-row {margin-top:2rem;display:flex;gap:1rem;}
-    .btn {background:#1e40af;color:#fff;padding:.5rem 1.2rem;
-          border-radius:8px;text-decoration:none;text-align:center;}
-    .btn:hover {background:#1e3a8a;}
-    .btn.outline {background:transparent;border:1px solid #1e40af;color:#1e40af;}
-    .btn.outline:hover {background:#e0e7ff;}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xác nhận đặt vé</title>
+<link rel="stylesheet" href="assets/home.css">
+<style>
+body{background:#f8fafc;font-family:'Segoe UI',sans-serif;margin:0;}
+main.container{max-width:950px;margin:2rem auto;padding:2rem;background:#fff;border-radius:20px;box-shadow:0 6px 16px rgba(0,0,0,0.08);}
+.card{border:1px solid #e2e8f0;border-radius:12px;padding:14px 18px;margin:16px 0;background:#f9fafb;}
+.summary{background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 14px;margin:16px 0;font-size:15px;}
+.total{background:#f1f5f9;border:2px solid #1e3a8a;border-radius:14px;padding:1rem 1.2rem;text-align:center;font-weight:600;color:#1e3a8a;font-size:16px;}
+.btn{background:#1e40af;color:#fff;padding:.6rem 1.3rem;border-radius:8px;border:none;cursor:pointer;}
+.btn:hover{background:#1e3a8a;}
+.btn.outline{background:transparent;border:1px solid #1e40af;color:#1e40af;}
+.btn.outline:hover{background:#e0e7ff;}
+#toast{display:none;position:fixed;top:20px;right:20px;background:#16a34a;color:white;padding:12px 18px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.2);}
+.loading{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.7);align-items:center;justify-content:center;font-size:20px;color:#1e40af;}
+</style>
 </head>
 <body>
-  <header class="topbar">
+<header class="topbar">
   <div class="container nav">
-    <div class="brand">
-      <div class="logo">✈</div>
-      <div>VNAir Ticket</div>
-    </div>
+    <div class="brand"><div class="logo">✈</div><div>VNAir Ticket</div></div>
     <nav>
       <a href="index.php#uu-dai">Ưu đãi</a>
       <a href="index.php#quy-trinh">Quy trình</a>
@@ -99,62 +90,82 @@ if (isset($_POST['confirm_booking'])) {
     </nav>
   </div>
 </header>
+
 <main class="container">
-  <div class="ticket">
-    <div class="ticket-header">
-      <h2>Xác nhận vé - PNR: <?=$pnr?></h2>
-      <button onclick="window.print()" class="btn outline">🖨 In vé</button>
+  <h2>Xác nhận đặt vé</h2>
+
+  <div class="summary">
+    <strong>✈ Chiều đi:</strong> <?=$flight['so_hieu']?> (<?=$flight['ten_di']?> → <?=$flight['ten_den']?>)<br>
+    Ngày đi: <?=$flight['gio_di']?> — Ngày đến: <?=$flight['gio_den']?><br>
+    Hạng ghế: <strong><?=$cabin?></strong> | Giá vé / người: <strong><?=vnd($price_per)?></strong>
+  </div>
+
+  <?php if ($returnFlight): ?>
+  <div class="summary">
+    <strong>↩ Chiều về:</strong> <?=$returnFlight['so_hieu']?> (<?=$returnFlight['ten_di']?> → <?=$returnFlight['ten_den']?>)<br>
+    Ngày đi: <?=$returnFlight['gio_di']?> — Ngày đến: <?=$returnFlight['gio_den']?><br>
+    Hạng ghế: <strong><?=$cabin?></strong> | Giá vé / người: <strong><?=vnd($price_per)?></strong>
+  </div>
+  <?php endif; ?>
+
+  <h3>👥 Thông tin hành khách</h3>
+  <?php foreach ($passengers as $i => $p): ?>
+    <div class="card">
+      <strong>Hành khách #<?=$i+1?></strong><br>
+      <ul style="margin:6px 0 0 18px; line-height:1.5;">
+        <li>Họ tên: <strong><?=htmlspecialchars($p['ho_ten'])?></strong></li>
+        <li>Ngày sinh: <?=htmlspecialchars($p['ngay_sinh'])?></li>
+        <li>Giới tính: <?=($p['gioi_tinh']=='M'?'Nam':'Nữ')?></li>
+        <li>CMND/Hộ chiếu: <?=htmlspecialchars($p['giay_to'])?></li>
+        <li>Ghế chiều đi: <strong><?=htmlspecialchars($p['seat_go'] ?? '')?></strong></li>
+        <?php if (!empty($p['seat_back'])): ?>
+          <li>Ghế chiều về: <strong><?=htmlspecialchars($p['seat_back'])?></strong></li>
+        <?php endif; ?>
+      </ul>
     </div>
+  <?php endforeach; ?>
 
-    <?php if ($flight): ?>
-      <p>
-        Chuyến: <strong><?=htmlspecialchars($flight['so_hieu'])?></strong><br>
-        Hành trình: <?=htmlspecialchars($flight['san_bay_di'])?> → <?=htmlspecialchars($flight['san_bay_den'])?><br>
-        Giờ đi: <?=$flight['gio_di']?> — Giờ đến: <?=$flight['gio_den']?><br>
-        Hạng: <?=$cabin?><br>
-        Tổng tiền: <strong><?=number_format($total)?> VND</strong>
-      </p>
+  <div class="total">
+    Tổng cộng <?=$qty?> vé x <?=vnd($price_per)?> = <?=vnd($subtotal)?><br>
+    <?php if ($discount > 0): ?>
+      Giảm khứ hồi: <strong style="color:#dc2626;">-<?=vnd($discount_amount)?></strong><br>
     <?php endif; ?>
+    <span style="font-size:18px;">Tổng thanh toán: <?=vnd($total)?></span>
+  </div>
 
-    <h3>Danh sách hành khách</h3>
-    <?php foreach ($passengers as $i=>$p): ?>
-      <div class="passenger">
-        <strong><?=$i+1?>. <?=htmlspecialchars($p['ho_ten'])?></strong><br>
-        Giới tính: <?=htmlspecialchars($p['gioi_tinh'])?><br>
-        Ngày sinh: <?=htmlspecialchars($p['ngay_sinh'])?><br>
-        CMND/Hộ chiếu: <?=htmlspecialchars($p['giay_to'])?><br>
-        Ghế: <?=htmlspecialchars($seats[$i]??'')?>
-      </div>
-    <?php endforeach; ?>
-
-    <form method="post">
-      <?php foreach ($_POST as $k=>$v): 
-        if ($k==='confirm_booking') continue;
-        if (is_array($v)) {
-          foreach ($v as $sk=>$sv) {
-            if (is_array($sv)) {
-              foreach ($sv as $kk=>$vv) {
-                echo '<input type="hidden" name="passengers['.$sk.']['.$kk.']" value="'.htmlspecialchars($vv).'">';
-              }
-            } else {
-              echo '<input type="hidden" name="'.$k.'[]" value="'.htmlspecialchars($sv).'">';
-            }
-          }
-        } else {
-          echo '<input type="hidden" name="'.$k.'" value="'.htmlspecialchars($v).'">';
-        }
-      endforeach; ?>
-      <div class="btn-row">
-        <button type="submit" name="confirm_booking" class="btn">Xác nhận đặt vé</button>
-        <button type="submit" name="go_back" formaction="index.php?p=add_passengers" class="btn outline">
-          ← Quay lại nhập thông tin khách
-        </button>
-      </div>
-    </form>
+  <div style="text-align:center;margin-top:2rem;">
+    <button class="btn" type="button" onclick="confirmBooking()">Xác nhận & Thanh toán</button>
+    <a href="index.php?p=add_passenger.php" class="btn outline">← Quay lại</a>
   </div>
 </main>
-<footer class="footer">
-  <div class="container">&copy; <?=date('Y')?> VNAir Ticket</div>
+
+<div id="toast">🎉 Đặt vé thành công!</div>
+<div class="loading" id="loading">⏳ Đang xử lý thanh toán...</div>
+
+<script>
+function confirmBooking() {
+  const btn = document.querySelector('.btn');
+  const loading = document.getElementById('loading');
+  btn.disabled = true;
+  btn.textContent = 'Đang xử lý...';
+  loading.style.display = 'flex';
+
+  // 🔹 Mô phỏng quá trình thanh toán (không kết nối máy chủ)
+  setTimeout(() => {
+    loading.style.display = 'none';
+    const toast = document.getElementById('toast');
+    toast.style.display = 'block';
+
+    // Sau 2s tự động chuyển trang
+    setTimeout(() => {
+      window.location.href = 'index.php?p=my_bookings';
+    }, 2000);
+  }, 1500);
+}
+</script>
+
+<footer style="text-align:center;color:#64748b;font-size:14px;margin-top:2rem;">
+  © <?=date('Y')?> VNAir Ticket — Trang demo học tập
 </footer>
 </body>
 </html>

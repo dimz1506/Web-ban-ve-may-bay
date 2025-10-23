@@ -63,11 +63,7 @@ foreach ($bookings_all as $b) {
 <header class="topbar">
   <div class="container nav">
     <div class="brand"><div class="logo">✈</div><div>VNAir Ticket</div></div>
-    <nav>
-      <a href="index.php">Trang chủ</a>
-      <a href="index.php?p=my_tickets">Vé đã đặt</a>
-    </nav>
-  </div>
+    
 </header>
 
 <main class="container ticket-list">
@@ -117,7 +113,7 @@ foreach ($bookings_all as $b) {
 
   <div style="margin-top:1.5rem; display:flex; gap:1rem;">
     <a href="javascript:history.back()" class="btn outline">← Quay lại</a>
-    <a href="index.php" class="btn">🏠 Trang chủ</a>
+    <a href="index.php?p=customer" class="btn">🏠 Trang chủ</a>
   </div>
 </main>
 

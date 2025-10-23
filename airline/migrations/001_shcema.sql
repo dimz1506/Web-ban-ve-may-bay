@@ -31,7 +31,7 @@
 
 -- CREATE TABLE tau_bay (
 --   id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
---   so_dang_ba VARCHAR(16) UNIQUE,
+--   so_dang_ba VARCHAR(16) UNIQUE, giong biển số xe máy
 --   dong_may_bay VARCHAR(64) NOT NULL
 -- );
 

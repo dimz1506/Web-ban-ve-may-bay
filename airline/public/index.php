@@ -3,7 +3,23 @@
 // Router + Trang chủ (landing). Khi có tham số ?p=... sẽ nạp trang trong /pages.
 require_once dirname(__DIR__) . '/config.php';
 
-
+$flights_week = [];
+try {
+  $stmt = db()->prepare("
+    SELECT 
+      so_hieu,
+      gio_di,
+      gio_den,
+      trang_thai
+    FROM chuyen_bay
+    WHERE YEARWEEK(gio_di, 1) = YEARWEEK(CURDATE(), 1)
+    ORDER BY gio_di ASC
+  ");
+  $stmt->execute();
+  $flights_week = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+  $flights_week = [];
+}
 
 $p = $_GET['p'] ?? null;
 
@@ -22,20 +38,36 @@ if ($p !== null && $p !== 'home') {
     'profile'      => 'customer/profile.php',
     'flights'      => 'admin/flights.php',
     'promotions'   => 'admin/promotions.php',
-    'sanbay'       => 'admin/sanbay.php',
     'classes'      => 'admin/classes.php',
     'reports'      => 'admin/reports.php',
+    'bookings'     => 'admin/bookings.php',
+    'router'      => 'admin/router.php',
+    'sanbay'    => 'admin/sanbay.php',
     'fare'        => 'admin/fare.php',
-    'router'       => 'admin/router.php',
-
-    // Customer pages
-    'profile'      => 'customer/profile.php',
-    'payment'      => 'customer/payment.php',
-    'invoice'      => 'customer/invoice.php',
-    'contact'      => 'customer/contact.php',
-    'notifications'=> 'customer/notifications.php',
+    
     'book_search'  => 'customer/book_search.php',
-    'my_tickets'   => 'customer/my_tickets.php',
+    'notifications'=> 'customer/notifications.php',
+    'invoice'      => 'customer/invoice.php',
+    
+    'search_results' => 'booking/search_results.php',
+    'select_seat' => 'booking/select_seat.php',
+    'add_passengers' => 'booking/add_passengers.php',
+    'review_checkout' => 'booking/review_checkout.php',
+    'my_bookings' => 'booking/my_bookings.php',
+    'my_tickets' => 'booking/my_tickets.php',
+    'edit_ticket' => 'booking/edit_ticket.php',
+    'cancel_ticket' => 'booking/cancel_ticket.php',
+    'confirm_booking'=> 'booking/confirm_booking.php',
+    'payment'=> 'booking/payment.php',
+    'search_roundtrip'=> 'booking/search_roundtrip.php',
+    'verify_ticket' => 'booking/verify_ticket.php',
+    'print_ticket' => 'booking/print_ticket.php',
+
+    //hỡ trợ khách hàng
+    "support_requests" => 'staff/support_requests.php',
+    "support_detail"   => 'staff/support_detail.php',
+    "support_update"   => 'staff/support_update.php',
+
   ];
   if (!isset($map[$p])) {
     http_response_code(404);
@@ -53,6 +85,7 @@ if ($p !== null && $p !== 'home') {
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Trang chủ - Đặt vé máy bay</title>
   <link rel="stylesheet" href="assets/home.css">
+   <link rel="stylesheet" href="assets/flightsweek.css">
 </head>
 
 <body>
@@ -62,11 +95,11 @@ if ($p !== null && $p !== 'home') {
         <div class="logo">✈</div>
         <div>VNAir Ticket</div>
       </div>
-      <nav>
+      <!-- <nav>
         <a href="#uu-dai">Ưu đãi</a>
         <a href="#quy-trinh">Quy trình</a>
         <a href="#lien-he">Liên hệ</a>
-      </nav>
+      </nav> -->
       <div class="nav-cta">
         <a class="btn outline" href="index.php?p=login" aria-label="Đăng nhập">Đăng nhập</a>
         <a class="btn" href="index.php?p=register" aria-label="Đăng ký">Đăng ký</a>
@@ -133,6 +166,38 @@ if ($p !== null && $p !== 'home') {
     </div>
   </div>
 
+<section id="flights-week">
+  <div class="container">
+    <h2>✈️ Các chuyến bay trong tuần</h2>
+    <?php if (empty($flights_week)): ?>
+      <p>Không có chuyến bay nào trong tuần này.</p>
+    <?php else: ?>
+      <table>
+        <thead>
+          <tr>
+            <th>Số hiệu</th>
+            <th>Giờ đi</th>
+            <th>Giờ đến</th>
+            <th>Trạng thái</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($flights_week as $f): ?>
+             <tr>
+              <td data-label="Số hiệu"><?= htmlspecialchars($f['so_hieu']) ?></td>
+              <td data-label="Giờ đi"><?= date('d/m/Y H:i', strtotime($f['gio_di'])) ?></td>
+              <td data-label="Giờ đến"><?= date('d/m/Y H:i', strtotime($f['gio_den'])) ?></td>
+              <td data-label="Trạng thái"><?= htmlspecialchars($f['trang_thai']) ?></td>
+         </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    <?php endif; ?>
+  </div>
+</section>
+
+
+
   <section id="uu-dai">
     <div class="container">
       <h2>Ưu đãi nổi bật</h2>
@@ -173,9 +238,11 @@ if ($p !== null && $p !== 'home') {
     </div>
   </section>
 
+
   <footer id="lien-he">
+
     <div class="container">
-      <div>© <span id="y"></span> VNAir Ticket — Trang demo học tập.
+      <div>© 2025<span id="y"></span> VNAir Ticket.
       </div>
     </div>
   </footer>

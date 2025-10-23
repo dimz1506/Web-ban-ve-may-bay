@@ -80,8 +80,6 @@ $user = current_user();
 
 ?>
 
-
-
 <!doctype html>
 <html lang="vi">
 
@@ -101,7 +99,7 @@ $user = current_user();
         <div class="logo" aria-hidden="true">✈</div>
         <div>VNAir Ticket</div>
       </div>
-      <nav class="toplinks" aria-hidden="false">
+      <!-- <nav class="toplinks" aria-hidden="false">
         <strong>Admin</strong>
 
         <a href="index.php?p=users">Người dùng</a>
@@ -112,9 +110,9 @@ $user = current_user();
         <a href="index.php?p=fare">Giá vé</a>
 
 
-      </nav>
+      </nav> -->
       <div class="nav-cta">
-        <a class="btn outline" href="index.php?p=logout">Đăng xuất</a>
+        
       </div>
     </div>
   </header>
@@ -139,9 +137,11 @@ $user = current_user();
           <a href="index.php?p=router">Quản lý tuyến bay</a>
           <a href="index.php?p=fare">Quản lý giá vé</a>
           <a href="index.php?p=sanbay">Quản lý sân bay</a>
+          <a href="index.php?p=bookings">Quản lý đặt đơn</a>
           <a href="index.php?p=reports">Báo cáo</a>
+          <a href="index.php?p=support_requests">Yêu cầu hỗ trợ</a>
           <a href="index.php?p=settings">Cài đặt</a>
-
+          <a style="color: red;" class="btn outline" href="index.php?p=logout">Đăng xuất</a>
         </nav>
 
         <div style="margin-top:18px;">

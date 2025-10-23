@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi">
 
+
 <head>
     <meta charset="UTF-8">
     <title>Quản lý giá vé mặc định | VNAir Ticket</title>
@@ -9,6 +10,7 @@
 </head>
 
 <body>
+    <?php include __DIR__ . '/../includes/header.php'; ?>
     <?php include __DIR__ . '/../includes/header.php'; ?>
 
     <main class="container">
@@ -131,5 +133,6 @@
         </div>
     </main>
 </body>
+
 
 </html>
