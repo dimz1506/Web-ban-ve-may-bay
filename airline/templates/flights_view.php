@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                                    <button class="btn danger" name="action" value="delete">Xóa</button>
                                                      </form>
                                              <?php else: ?>
-                                          <span class="small-muted">Không có quyền</span>
+                                          <!-- <span class="small-muted">Không có quyền</span> -->
                                             <?php endif; ?>
 
                                                 </td>
@@ -266,9 +266,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <br>
                 <div class="page-actions">
         <?php if (!empty($isAdmin)): ?>
-            <a class="btn ghost" href="index.php?p=admin">Quay lại trang Admin</a>
+            <a class="btn ghost" href="index.php?p=admin">Quay lại</a>
         <?php elseif (!empty($isStaff)): ?>
-            <a class="btn ghost" href="index.php?p=staff">Quay lại trang Nhân viên</a>
+            <a class="btn ghost" href="index.php?p=staff">Quay lại</a>
         <?php endif; ?>
     </div>
         </main>

@@ -22,9 +22,6 @@
       <aside class="sidebar" aria-label="Thanh điều hướng">
         <h4>Quản trị</h4>
          <a class="side-link active" href="index.php?p=admin">Trang chủ</a>
-        <a class="side-link active" href="index.php?p=users">Tài khoản</a>
-      
-    
         <div style="height:12px"></div>
       </aside>
 
@@ -41,10 +38,7 @@
             <h2 style="margin:0">Quản lý tài khoản</h2>
             <div class="muted" style="margin-top:6px">Xem, tạo, sửa, khoá/mở & xoá tài khoản.</div>
           </div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <a class="btn ghost" href="#form-create">Thêm tài khoản</a>
-        
-          </div>
+          
         </div>
 
         <!-- FILTER -->

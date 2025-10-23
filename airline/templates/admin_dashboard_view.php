@@ -139,6 +139,7 @@ $user = current_user();
           <a href="index.php?p=sanbay">Quản lý sân bay</a>
           <a href="index.php?p=bookings">Quản lý đặt đơn</a>
           <a href="index.php?p=reports">Báo cáo</a>
+          <a href="index.php?p=support_requests">Yêu cầu hỗ trợ</a>
           <a href="index.php?p=settings">Cài đặt</a>
           <a style="color: red;" class="btn outline" href="index.php?p=logout">Đăng xuất</a>
         </nav>

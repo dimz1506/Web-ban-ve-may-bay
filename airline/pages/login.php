@@ -18,6 +18,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $email = trim($_POST['email'] ?? '');
   $password = (string)($_POST['password'] ?? '');
 
+  if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    flash_set('err', 'Email không hợp lệ.');
+}
+
+
   if ($email === '' || $password === '') {
     flash_set('err','Vui lòng nhập email và mật khẩu.');
   } else {

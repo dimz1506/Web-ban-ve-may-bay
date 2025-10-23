@@ -34,7 +34,6 @@ try {
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bảng điều khiển Nhân viên | VNAir Ticket</title>
   <link rel="stylesheet" href="assets/staff.css">
-
 </head>
 <body>
 
@@ -114,7 +113,11 @@ try {
             <a href="index.php?p=bookings">Tra cứu / Lọc vé</a>
             <a href="index.php?p=flights">Danh sách chuyến bay</a>
             <a href="index.php?p=reports">Báo cáo</a>
-            <a href="index.php?p=support">Thông báo</a>
+            <a href="index.php?p=router">Quản lý tuyến bay</a>
+            <a href="index.php?p=fare">Quản lý giá vé</a>
+            <a href="index.php?p=classes">Quản lý hạng ghế</a>
+            <a href="index.php?p=sanbay">Quản lý sân bay</a>
+            <a href="index.php?p=support_requests">Yêu cầu hỗ trợ</a>
             <a style="color: red;" href="index.php?p=logout">Đăng xuất</a>
           </div>
         </div>
@@ -130,10 +133,12 @@ try {
       </aside>
     </div>
   </main>
+
 <footer>
     <div class="container">© <span id="y"></span> VNAir Ticket</div>
   </footer>
 
+  
   <script>
     document.getElementById('y').textContent = new Date().getFullYear();
   </script>

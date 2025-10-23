@@ -23,13 +23,7 @@
         <h2>Quản lý đơn đặt</h2>
         <div class="muted" style="margin-top:6px">Xem, lọc, và quản lý các vé / đơn đặt.</div>
       </div>
-      <div class="page-actions">
-        <?php if (!empty($isAdmin)): ?>
-            <a class="btn ghost" href="index.php?p=admin">Quay lại trang Admin</a>
-        <?php elseif (!empty($isStaff)): ?>
-            <a class="btn ghost" href="index.php?p=staff">Quay lại trang Nhân viên</a>
-        <?php endif; ?>
-    </div>
+     
     </div>
 
     <!-- Filters -->
@@ -155,6 +149,14 @@
           <?php endfor; ?>
         <?php endif; ?>
       </div>
+    </div>
+
+    <div class="page-actions">
+        <?php if (!empty($isAdmin)): ?>
+            <a class="btn ghost" href="index.php?p=admin">Quay lại</a>
+        <?php elseif (!empty($isStaff)): ?>
+            <a class="btn ghost" href="index.php?p=staff">Quay lại</a>
+        <?php endif; ?>
     </div>
   </main>
 

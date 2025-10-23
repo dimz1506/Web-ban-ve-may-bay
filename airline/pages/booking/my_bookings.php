@@ -34,7 +34,6 @@ if ($pnr === '') {
 
   // Lấy danh sách vé
   if (!$notfound) {
-    // ✅ kiểm tra có cột gioi_tinh trong DB không
     $colCheck = db()->query("SHOW COLUMNS FROM hanh_khach LIKE 'gioi_tinh'")->fetch();
     $hasGenderCol = !!$colCheck;
 
