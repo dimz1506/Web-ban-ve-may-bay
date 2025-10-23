@@ -1,7 +1,9 @@
 <?php
 // config.php
 declare(strict_types=1);
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 if (!function_exists('current_user_role')) {
     function current_user_role() {
         return $_SESSION['user']['role'] ?? null;

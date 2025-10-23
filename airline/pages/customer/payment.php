@@ -130,9 +130,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $success = 'Thanh toán thành công! Vé đã được gửi về email của bạn.';
             
+
         } catch (Exception $e) {
             $errors[] = 'Có lỗi xảy ra: ' . $e->getMessage();
         }
+   
     }
 }
 ?>

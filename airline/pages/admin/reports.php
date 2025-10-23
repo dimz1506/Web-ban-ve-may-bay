@@ -1,5 +1,6 @@
 <?php
 // pages/admin/reports.php
+session_start();
 if (!function_exists('db')) {
     require_once dirname(__DIR__) . '/config.php';
 }

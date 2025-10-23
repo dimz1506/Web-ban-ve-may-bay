@@ -67,11 +67,11 @@
     <div class="summary">
       <div class="summary-card" style="background: linear-gradient(135deg,#007bff,#00bcd4);">
         <h3>Tổng vé bán</h3>
-        <p><?= array_sum(array_column($tickets, 'so_ve')) ?></p>
+        <p><?= !empty($tickets) ? array_sum(array_column($tickets, 'so_ve')) : 0 ?></p>
       </div>
       <div class="summary-card" style="background: linear-gradient(135deg,#28a745,#66bb6a);">
         <h3>Tổng doanh thu</h3>
-        <p><?= number_format(array_sum(array_column($tickets, 'doanh_thu'))) ?> ₫</p>
+        <p><?= !empty($tickets) ? number_format(array_sum(array_column($tickets, 'doanh_thu'))) . ' ₫' : '0 ₫' ?>₫</p>
       </div>
       <div class="summary-card" style="background: linear-gradient(135deg,#fbc02d,#ffa000);">
         <h3>Số chuyến bay</h3>
