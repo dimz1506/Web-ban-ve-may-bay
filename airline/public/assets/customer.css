@@ -46,3 +46,20 @@
   color: #dc2626;
   font-weight: 600;
 }
+
+
+.flight-card {
+  border: 1px solid #e5e7eb;
+  padding: 16px;
+  border-radius: 12px;
+  background: #fff;
+  transition: transform .15s ease;
+}
+.flight-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+}
+.flight-card .btn {
+  margin-top: 10px;
+  display: inline-block;
+}
