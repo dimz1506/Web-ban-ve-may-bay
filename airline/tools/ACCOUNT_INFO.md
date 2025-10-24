@@ -58,11 +58,26 @@
 
 ### 🎯 **Tổng cộng: 61 chuyến bay**
 
-### 🛫 **Tuyến bay:**
+### 🔄 **Ngày có chuyến bay khứ hồi:**
+- **25/10/2025**: HAN↔DAD, SGN↔DAD, SGN↔CXR
+- **26/10/2025**: DAD↔HAN, CXR↔SGN, SGN↔DAD, HAN↔DAD
+- **01/11/2025**: HAN↔SGN, SGN↔HAN
+- **02/11/2025**: HAN↔SGN, SGN↔HAN  
+- **15/11/2025**: HAN↔SGN, SGN↔HAN
+- **01/12/2025**: HAN↔SGN, SGN↔HAN
+- **15/12/2025**: HAN↔SGN, SGN↔HAN
+- **25/12/2025**: HAN↔SGN, SGN↔HAN (Giáng sinh)
+- **31/12/2025**: HAN↔SGN, SGN↔HAN (Tết dương lịch)
+
+### 🛫 **Tuyến bay khứ hồi:**
 - **HAN ↔ SGN**: Nhiều chuyến bay
 - **HAN ↔ DAD**: Nhiều chuyến bay
 - **SGN ↔ CXR**: Nhiều chuyến bay  
 - **SGN ↔ PQC**: Nhiều chuyến bay
+- **DAD ↔ HAN**: Nhiều chuyến bay
+- **DAD ↔ SGN**: Nhiều chuyến bay
+- **CXR ↔ SGN**: Nhiều chuyến bay
+- **PQC ↔ SGN**: Nhiều chuyến bay
 
 ## 💰 Giá vé:
 - **ECON**: 2,500,000 VND
@@ -76,9 +91,24 @@
 http://localhost/Web-ban-ve-may-bay/airline/public/index.php?p=login
 ```
 
-### Tìm chuyến bay:
+### Tìm chuyến bay (một chiều):
 ```
 http://localhost/Web-ban-ve-may-bay/airline/public/index.php?p=search_results&from=HAN&to=SGN&depart=2025-10-25&pax=1&cabin=ECON&trip_type=oneway
+```
+
+### Tìm chuyến bay khứ hồi:
+```
+# HAN ↔ DAD (25/10/2025)
+http://localhost/Web-ban-ve-may-bay/airline/public/index.php?p=search_results&from=HAN&to=DAD&depart=2025-10-25&return=2025-10-25&cabin=ECON&adults=1
+
+# SGN ↔ DAD (25/10/2025)  
+http://localhost/Web-ban-ve-may-bay/airline/public/index.php?p=search_results&from=SGN&to=DAD&depart=2025-10-25&return=2025-10-25&cabin=ECON&adults=1
+
+# SGN ↔ CXR (25/10/2025)
+http://localhost/Web-ban-ve-may-bay/airline/public/index.php?p=search_results&from=SGN&to=CXR&depart=2025-10-25&return=2025-10-25&cabin=ECON&adults=1
+
+# HAN ↔ SGN (25/10/2025)
+http://localhost/Web-ban-ve-may-bay/airline/public/index.php?p=search_results&from=HAN&to=SGN&depart=2025-10-25&return=2025-10-25&cabin=ECON&adults=1
 ```
 
 ### Xem vé đã đặt:
@@ -113,6 +143,8 @@ http://localhost/Web-ban-ve-may-bay/airline/public/index.php?p=my_bookings&pnr=B
 3. **Xem vé đã đặt** tại my_tickets
 4. **Tra cứu booking** với PNR: B105CE
 5. **Đặt vé mới** từ ngày 25/10/2025 trở đi
+6. **Test chuyến bay khứ hồi** với các URL trên
+7. **Test QR code** tại my_bookings với PNR: 611EEC
 
 ### 🔧 **Tính năng file SQL:**
 - **INSERT IGNORE**: Chạy nhiều lần không lỗi duplicate
