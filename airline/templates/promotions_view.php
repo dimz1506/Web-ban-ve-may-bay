@@ -198,7 +198,7 @@
             </div>
         </div>
        <div class="page-actions">
-        <a class="btn " href="index.php?p=admin">Quay lại</a>
+        <a class="btn " href="index.php?p=admin">Quay lại trang admin</a>
       </div>
          
     </main>
